@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  password  String?
+  role      String   @default("USER") // USER or ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rides     RideBooking[]
+  rentals   RentalBooking[]
+}
+
+model RideBooking {
+  id             String   @id @default(cuid())
+  pickup         String
+  dropoff        String
+  pickupLat      Float?
+  pickupLng      Float?
+  pickupAccuracy Float?
+  locationCapturedAt DateTime?
+  estimatedPrice Int
+  distance       String
+  time           String
+  status         String   @default("PENDING") // PENDING, ACCEPTED, COMPLETED, CANCELLED
+  createdAt      DateTime @default(now())
+  
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model RentalBooking {
+  id             String   @id @default(cuid())
+  carId          Int
+  carName        String
+  dateRange      String
+  totalPrice     Int
+  status         String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  createdAt      DateTime @default(now())
+
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+}
