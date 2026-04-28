@@ -5,11 +5,20 @@ import {
   Calendar,
   User,
   LocateFixed,
-  ExternalLink,
   BriefcaseBusiness,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+
+const PickupMap = dynamic(() => import("@/components/PickupMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 rounded-xl border border-dashed border-white/15 bg-slate-950/30 grid place-items-center min-h-[480px] text-sm text-gray-500">
+      Đang tải bản đồ...
+    </div>
+  ),
+});
 
 type PickupLocation = {
   lat: number;
@@ -27,22 +36,6 @@ type EstimateResult = {
   durationLabel: string;
 };
 
-function buildMapEmbedUrl(lat: number, lng: number) {
-  const offset = 0.008;
-  const bbox = [
-    (lng - offset).toFixed(6),
-    (lat - offset).toFixed(6),
-    (lng + offset).toFixed(6),
-    (lat + offset).toFixed(6),
-  ].join("%2C");
-
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`;
-}
-
-function buildOpenStreetMapUrl(lat: number, lng: number) {
-  return `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=16/${lat.toFixed(6)}/${lng.toFixed(6)}`;
-}
-
 export default function RideForm() {
   const [pickup, setPickup] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -57,15 +50,26 @@ export default function RideForm() {
   const router = useRouter();
   const today = new Date().toISOString().split("T")[0];
 
-  const mapEmbedUrl = useMemo(() => {
-    if (!pickupLocation) return null;
-    return buildMapEmbedUrl(pickupLocation.lat, pickupLocation.lng);
-  }, [pickupLocation]);
-
-  const mapPageUrl = useMemo(() => {
-    if (!pickupLocation) return null;
-    return buildOpenStreetMapUrl(pickupLocation.lat, pickupLocation.lng);
-  }, [pickupLocation]);
+  const handleMapPick = ({
+    lat,
+    lng,
+    address,
+  }: {
+    lat: number;
+    lng: number;
+    address?: string;
+  }) => {
+    setError("");
+    setPickupLocation({ lat, lng, accuracy: null });
+    if (address) {
+      setPickup(address);
+      setLocationMessage(`Đã chọn vị trí từ bản đồ`);
+    } else {
+      setLocationMessage(
+        `Đã chọn: ${lat.toFixed(5)}, ${lng.toFixed(5)} (đang tra cứu địa chỉ...)`
+      );
+    }
+  };
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -74,11 +78,11 @@ export default function RideForm() {
     }
 
     setError("");
-    setLocationMessage("Dang lay vi tri hien tai...");
+    setLocationMessage("Đang lấy vị trí hiện tại...");
     setIsLocating(true);
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const nextLocation = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -88,19 +92,33 @@ export default function RideForm() {
         };
 
         setPickupLocation(nextLocation);
-        setPickup((currentPickup) =>
-          currentPickup.trim() ? currentPickup : "Vi tri hien tai"
-        );
         setLocationMessage(
-          `Da lay vi tri: ${nextLocation.lat.toFixed(5)}, ${nextLocation.lng.toFixed(5)}`
+          `Đã lấy vị trí: ${nextLocation.lat.toFixed(5)}, ${nextLocation.lng.toFixed(5)}`
         );
-        setIsLocating(false);
+
+        try {
+          const res = await fetch(
+            `/api/geocode/reverse?lat=${nextLocation.lat}&lng=${nextLocation.lng}`
+          );
+          if (res.ok) {
+            const data = (await res.json()) as { address?: string };
+            if (data.address) {
+              setPickup((currentPickup) =>
+                currentPickup.trim() ? currentPickup : data.address!
+              );
+            }
+          }
+        } catch {
+          // ignore — coords still set
+        } finally {
+          setIsLocating(false);
+        }
       },
       (geoError) => {
         const nextError =
           geoError.code === geoError.PERMISSION_DENIED
-            ? "Ban da tu choi quyen vi tri."
-            : "Khong lay duoc vi tri hien tai.";
+            ? "Bạn đã từ chối quyền vị trí."
+            : "Không lấy được vị trí hiện tại.";
 
         setPickupLocation(null);
         setLocationMessage("");
@@ -362,42 +380,24 @@ export default function RideForm() {
       <section className="bg-white/10 backdrop-blur-lg border border-white/20 p-4 rounded-2xl shadow-xl min-h-[560px] flex flex-col">
         <div className="flex items-center justify-between gap-3 px-2 pb-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">Vi tri hien tai</h3>
+            <h3 className="text-lg font-semibold text-white">Bản đồ điểm đón</h3>
             <p className="text-sm text-gray-400">
-              Ban do se hien sau khi trinh duyet lay duoc GPS.
+              Bấm trực tiếp lên bản đồ để chọn điểm đón. Địa chỉ sẽ tự động
+              điền vào ô &quot;Điểm đón&quot;.
             </p>
           </div>
-          {mapPageUrl && (
-            <a
-              href={mapPageUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-blue-300 hover:text-blue-200"
-            >
-              Mo lon
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
         </div>
 
-        {mapEmbedUrl && pickupLocation ? (
-          <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-slate-950/40">
-            <iframe
-              title="Ban do vi tri hien tai"
-              src={mapEmbedUrl}
-              className="h-full min-h-[480px] w-full"
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <div className="flex-1 rounded-xl border border-dashed border-white/15 bg-slate-950/30 grid place-items-center px-6 text-center text-sm text-gray-400">
-            <div className="space-y-2">
-              <LocateFixed className="w-8 h-8 mx-auto text-gray-500" />
-              <p>Chua co vi tri de hien ban do.</p>
-              <p className="text-gray-500">Bam &quot;Lay vi tri hien tai&quot; de xem marker cua nguoi thue.</p>
-            </div>
-          </div>
-        )}
+        <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-slate-950/40">
+          <PickupMap
+            marker={
+              pickupLocation
+                ? { lat: pickupLocation.lat, lng: pickupLocation.lng }
+                : null
+            }
+            onPick={handleMapPick}
+          />
+        </div>
       </section>
     </motion.div>
   );
