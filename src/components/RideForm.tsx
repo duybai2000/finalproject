@@ -21,14 +21,10 @@ type PickupLocation = {
 
 type EstimateResult = {
   price: number;
-  daysFare: number;
-  distanceFee: number;
-  distanceKm: number;
   totalDays: number;
   surchargeDays: number;
   surchargeTotal: number;
   dailyRate: number;
-  perKmRate: number;
   schedule: string;
   durationLabel: string;
 };
@@ -143,37 +139,26 @@ export default function RideForm() {
       const res = await fetch("/api/ride/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          startDate,
-          endDate,
-          pickupLat: pickupLocation.lat,
-          pickupLng: pickupLocation.lng,
-          dropoffLat: dropoffDestination.lat,
-          dropoffLng: dropoffDestination.lng,
-        }),
+        body: JSON.stringify({ startDate, endDate }),
       });
 
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
         ? await res.json()
-        : { error: "Server dang tra ve dinh dang khong hop le." };
+        : { error: "Server đang trả về định dạng không hợp lệ." };
 
       if (!res.ok) {
-        setError(data.error || "Khong the tinh gia thue tai xe.");
+        setError(data.error || "Không thể tính giá thuê tài xế.");
         return;
       }
 
       if (typeof data.price === "number") {
         setEstimate({
           price: data.price,
-          daysFare: data.daysFare,
-          distanceFee: data.distanceFee,
-          distanceKm: data.distanceKm,
           totalDays: data.totalDays,
           surchargeDays: data.surchargeDays,
           surchargeTotal: data.surchargeTotal,
           dailyRate: data.dailyRate,
-          perKmRate: data.perKmRate,
           schedule: data.schedule,
           durationLabel: data.durationLabel,
         });
@@ -245,8 +230,7 @@ export default function RideForm() {
       <section className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl shadow-xl">
         <h2 className="text-2xl font-bold text-white mb-2">Thue Tai Xe Theo Ngay</h2>
         <p className="text-sm text-gray-400 mb-6">
-          Gia co ban 1.000.000 d/ngay + 8.000 d/km quang duong (Diem don -&gt; Diem den).
-          Thu 7, Chu nhat va ngay le tinh them 20% phan tien ngay.
+          Giá cơ bản 1.000.000 đ/ngày. Thứ 7, Chủ nhật và ngày lễ tính thêm 20%.
         </p>
 
         <form onSubmit={handleEstimate} className="space-y-4">
@@ -370,28 +354,21 @@ export default function RideForm() {
             <div className="grid gap-2 text-sm text-gray-400">
               <p className="flex items-center gap-2">
                 <BriefcaseBusiness className="w-4 h-4" />
-                Don gia: {estimate.dailyRate.toLocaleString("vi-VN")} d/ngay
-                {" - "}
-                {estimate.perKmRate.toLocaleString("vi-VN")} d/km
+                Đơn giá: {estimate.dailyRate.toLocaleString("vi-VN")} đ/ngày
               </p>
-              <p>Lich thue: {estimate.schedule}</p>
-              <p>Thoi gian: {estimate.durationLabel}</p>
-              <p>Khoang cach uoc tinh: {estimate.distanceKm.toFixed(1)} km</p>
-              <div className="border-t border-white/10 mt-2 pt-2 grid gap-1">
-                <p>Tien theo ngay: {estimate.daysFare.toLocaleString("vi-VN")} d</p>
-                {estimate.surchargeTotal > 0 && (
-                  <p>
-                    Phu thu cuoi tuan/ngay le ({estimate.surchargeDays} ngay): +
-                    {estimate.surchargeTotal.toLocaleString("vi-VN")} d
-                  </p>
-                )}
-                <p>Tien quang duong: +{estimate.distanceFee.toLocaleString("vi-VN")} d</p>
-              </div>
+              <p>Lịch thuê: {estimate.schedule}</p>
+              <p>Thời gian: {estimate.durationLabel}</p>
+              <p>Ngày cuối tuần / ngày lễ: {estimate.surchargeDays}</p>
+              {estimate.surchargeTotal > 0 && (
+                <p>
+                  Phụ thu cuối tuần / ngày lễ: +
+                  {estimate.surchargeTotal.toLocaleString("vi-VN")} đ
+                </p>
+              )}
             </div>
             {pickupLocation && dropoffDestination && (
               <p className="mt-3 text-xs text-gray-400">
-                {pickupLocation.lat.toFixed(4)},{pickupLocation.lng.toFixed(4)} -&gt;{" "}
-                {dropoffDestination.name}
+                Điểm đón GPS &rarr; {dropoffDestination.name}
               </p>
             )}
             <button

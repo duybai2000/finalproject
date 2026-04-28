@@ -10,7 +10,7 @@ const RegisterSchema = z.object({
     .string()
     .min(6, "Mat khau toi thieu 6 ky tu.")
     .max(128, "Mat khau qua dai."),
-  role: z.enum(["USER", "OWNER"]).optional(),
+  role: z.enum(["USER", "OWNER", "DRIVER"]).optional(),
 });
 
 export async function POST(request: Request) {

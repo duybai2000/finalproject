@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { splitRevenue } from "@/lib/commission";
+import { splitRevenue, splitRideRevenue } from "@/lib/commission";
 
 export type DailyRevenue = {
   date: string; // YYYY-MM-DD
@@ -11,9 +11,10 @@ export type RevenueStats = {
   thisWeek: number;
   paidBookings: number;
   daily: DailyRevenue[]; // last 7 days, oldest first
-  platformDirect: number; // gross from platform-owned (rides + own-fleet rentals)
-  commission: number; // 15% from owner-listed rentals
-  ownerPayouts: number; // 85% paid out to owners
+  platformDirect: number; // gross from platform-owned (unclaimed rides + own-fleet rentals)
+  commission: number; // 15% rental + 10% ride commission
+  ownerPayouts: number; // 85% to owners
+  driverPayouts: number; // 90% to drivers
 };
 
 function startOfDayUtc(d: Date) {
@@ -34,7 +35,7 @@ export async function getRevenueStats(): Promise<RevenueStats> {
   const [paidRides, paidRentals] = await Promise.all([
     prisma.rideBooking.findMany({
       where: { paidAt: { not: null } },
-      select: { estimatedPrice: true, paidAt: true },
+      select: { estimatedPrice: true, paidAt: true, driverId: true },
     }),
     prisma.rentalBooking.findMany({
       where: { paidAt: { not: null } },
@@ -56,6 +57,7 @@ export async function getRevenueStats(): Promise<RevenueStats> {
   let platformDirect = 0;
   let commission = 0;
   let ownerPayouts = 0;
+  let driverPayouts = 0;
   let total = 0;
   let thisWeek = 0;
 
@@ -65,10 +67,16 @@ export async function getRevenueStats(): Promise<RevenueStats> {
     buckets.set(isoDay(d), 0);
   }
 
-  // Ride revenue is always 100% platform (no owners on rides yet)
+  // Ride revenue: 10% to platform if a driver claimed it; otherwise 100% platform.
   for (const r of paidRides) {
     if (!r.paidAt) continue;
-    platformDirect += r.estimatedPrice;
+    const split = splitRideRevenue(r.estimatedPrice, !!r.driverId);
+    if (r.driverId) {
+      commission += split.platformCommission;
+      driverPayouts += split.driverNet;
+    } else {
+      platformDirect += split.platformCommission; // == estimatedPrice
+    }
     total += r.estimatedPrice;
     const dayKey = isoDay(startOfDayUtc(r.paidAt));
     if (buckets.has(dayKey)) {
@@ -109,7 +117,26 @@ export async function getRevenueStats(): Promise<RevenueStats> {
     platformDirect,
     commission,
     ownerPayouts,
+    driverPayouts,
   };
+}
+
+export async function getDriverEarnings(driverId: string) {
+  const paid = await prisma.rideBooking.findMany({
+    where: { driverId, paidAt: { not: null } },
+    select: { estimatedPrice: true },
+  });
+
+  let gross = 0;
+  let net = 0;
+  let commission = 0;
+  for (const r of paid) {
+    const split = splitRideRevenue(r.estimatedPrice, true);
+    gross += split.gross;
+    net += split.driverNet;
+    commission += split.platformCommission;
+  }
+  return { gross, net, commission, paidRides: paid.length };
 }
 
 /**

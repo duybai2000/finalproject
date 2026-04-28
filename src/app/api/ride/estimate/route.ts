@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  calculateDriverHirePrice,
-  getDriverDailyRate,
-  getPerKmRate,
-} from "@/lib/pricing";
+import { calculateDriverHirePrice, getDriverDailyRate } from "@/lib/pricing";
 
 const EstimateSchema = z.object({
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngay khong hop le."),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngay khong hop le."),
-  pickupLat: z.number().min(-90).max(90),
-  pickupLng: z.number().min(-180).max(180),
-  dropoffLat: z.number().min(-90).max(90),
-  dropoffLng: z.number().min(-180).max(180),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
 });
 
 export async function POST(request: Request) {
@@ -22,50 +14,31 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Du lieu khong hop le." },
+        { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
         { status: 400 }
       );
     }
 
-    const {
-      startDate,
-      endDate,
-      pickupLat,
-      pickupLng,
-      dropoffLat,
-      dropoffLng,
-    } = parsed.data;
-
-    const pricing = calculateDriverHirePrice(
-      startDate,
-      endDate,
-      pickupLat,
-      pickupLng,
-      dropoffLat,
-      dropoffLng
-    );
+    const { startDate, endDate } = parsed.data;
+    const pricing = calculateDriverHirePrice(startDate, endDate);
 
     if (!pricing) {
       return NextResponse.json(
-        { error: "Khoang thoi gian thue khong hop le." },
+        { error: "Khoảng thời gian thuê không hợp lệ." },
         { status: 400 }
       );
     }
 
     return NextResponse.json({
       price: pricing.total,
-      daysFare: pricing.daysFare,
-      distanceFee: pricing.distanceFee,
-      distanceKm: Math.round(pricing.distanceKm * 10) / 10,
       totalDays: pricing.totalDays,
       surchargeDays: pricing.surchargeDays,
       surchargeTotal: pricing.surchargeTotal,
       dailyRate: getDriverDailyRate(),
-      perKmRate: getPerKmRate(),
-      schedule: `${startDate} den ${endDate}`,
-      durationLabel: `${pricing.totalDays} ngay`,
+      schedule: `${startDate} đến ${endDate}`,
+      durationLabel: `${pricing.totalDays} ngày`,
     });
   } catch {
-    return NextResponse.json({ error: "Loi server." }, { status: 500 });
+    return NextResponse.json({ error: "Lỗi máy chủ." }, { status: 500 });
   }
 }

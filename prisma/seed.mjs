@@ -82,6 +82,61 @@ async function main() {
       description:
         "MPV 7 cho rong rai, khoang hanh ly lon, ly tuong cho gia dinh hoac nhom ban di du lich.",
     },
+    {
+      id: 4,
+      name: "Hyundai Accent 2024",
+      type: "Thuong",
+      seats: 4,
+      auto: true,
+      dailyRate: 750_000,
+      img: "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=80&w=400&h=250",
+      description:
+        "Sedan be, tiet kiem xang, hop so tu dong moi. Phu hop nguoi moi lai va di lai trong pho.",
+    },
+    {
+      id: 5,
+      name: "Ford Ranger 2023",
+      type: "Ban tai",
+      seats: 5,
+      auto: true,
+      dailyRate: 1_400_000,
+      img: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=80&w=400&h=250",
+      description:
+        "Ban tai gam cao, hai cau, thung sau lon. Manh me cho cac chuyen di phuot xa va dia hinh kho.",
+    },
+    {
+      id: 6,
+      name: "Toyota Innova Cross 2024",
+      type: "Gia dinh",
+      seats: 7,
+      auto: true,
+      dailyRate: 1_200_000,
+      img: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80&w=400&h=250",
+      description:
+        "MPV moi, dong co Hybrid tiet kiem, noi that rong rai, ly tuong cho gia dinh 6-7 nguoi.",
+    },
+    {
+      id: 7,
+      name: "VinFast VF 5 2024",
+      type: "Tiet kiem",
+      seats: 5,
+      auto: true,
+      dailyRate: 600_000,
+      img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=400&h=250",
+      description:
+        "Crossover dien co nho, sac nhanh 30 phut, tam di chuyen 326 km. Khong tieng on, lai mu et.",
+    },
+    {
+      id: 8,
+      name: "Honda CR-V 2023",
+      type: "SUV",
+      seats: 5,
+      auto: true,
+      dailyRate: 1_300_000,
+      img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=400&h=250",
+      description:
+        "SUV gam cao, an toan 5 sao ASEAN NCAP. Phu hop di duong dai va dia hinh hon hop.",
+    },
   ];
 
   for (const car of platformCars) {

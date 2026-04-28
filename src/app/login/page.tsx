@@ -27,7 +27,14 @@ export default function LoginPage() {
 
     const session = await getSession();
     const role = session?.user?.role;
-    const target = role === "ADMIN" ? "/admin" : role === "OWNER" ? "/owner" : "/";
+    const target =
+      role === "ADMIN"
+        ? "/admin"
+        : role === "OWNER"
+          ? "/owner"
+          : role === "DRIVER"
+            ? "/driver"
+            : "/";
     router.push(target);
     router.refresh();
   };

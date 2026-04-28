@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { User, LogOut, LayoutDashboard, Car } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Car, Navigation } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -45,6 +45,16 @@ export default function Navbar() {
                  >
                    <Car className="w-5 h-5" />
                    <span>Chủ xe</span>
+                 </Link>
+               )}
+
+               {session.user.role === 'DRIVER' && (
+                 <Link
+                   href="/driver"
+                   className="flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/40 px-3 py-1.5 rounded-lg font-semibold transition shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+                 >
+                   <Navigation className="w-5 h-5" />
+                   <span>Tài xế</span>
                  </Link>
                )}
 

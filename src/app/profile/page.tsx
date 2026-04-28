@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import CancelBookingButton from "@/components/CancelBookingButton";
+import EditProfileForm from "@/components/EditProfileForm";
 
 function buildOpenStreetMapUrl(lat: number, lng: number) {
   return `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=16/${lat.toFixed(6)}/${lng.toFixed(6)}`;
@@ -32,10 +33,14 @@ export default async function ProfilePage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Trang Ca Nhan & Lich Su</h1>
 
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl mb-8">
-          <h2 className="text-xl font-bold mb-2">Thong tin tai khoan</h2>
-          <p className="text-gray-400">Ten: {user.name || "Chua cap nhat"}</p>
-          <p className="text-gray-400">Email: {user.email || "Khong co"}</p>
+        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl mb-6">
+          <h2 className="text-xl font-bold mb-2">Thông tin tài khoản</h2>
+          <p className="text-gray-400">Tên: {user.name || "Chưa cập nhật"}</p>
+          <p className="text-gray-400">Email: {user.email || "Không có"}</p>
+        </div>
+
+        <div className="mb-8">
+          <EditProfileForm initialName={user.name || ""} />
         </div>
 
         <h2 className="text-2xl font-bold mb-4 text-blue-400">Cuoc Xe Da Dat</h2>
@@ -54,9 +59,6 @@ export default async function ProfilePage() {
                   </p>
                   <p className="text-sm text-gray-400">
                     {ride.distance} - {ride.time}
-                    {ride.distanceKm !== null && (
-                      <span> - {ride.distanceKm.toFixed(1)} km</span>
-                    )}
                   </p>
                   {ride.pickupLat !== null && ride.pickupLng !== null && (
                     <div className="mt-2 text-xs text-gray-400 space-y-1">

@@ -7,16 +7,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String?  @unique
-  name      String?
-  password  String?
-  role      String   @default("USER") // USER, OWNER, or ADMIN
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  rides     RideBooking[]
-  rentals   RentalBooking[]
-  cars      Car[]
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  name          String?
+  password      String?
+  role          String   @default("USER") // USER, OWNER, DRIVER, or ADMIN
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  rides         RideBooking[] @relation("UserRides")
+  drivenRides   RideBooking[] @relation("DriverRides")
+  rentals       RentalBooking[]
+  cars          Car[]
 }
 
 model RideBooking {
@@ -28,7 +29,6 @@ model RideBooking {
   pickupAccuracy Float?
   dropoffLat     Float?
   dropoffLng     Float?
-  distanceKm     Float?
   locationCapturedAt DateTime?
   estimatedPrice Int
   distance       String   // legacy: stores schedule label "{startDate} den {endDate}"
@@ -38,7 +38,9 @@ model RideBooking {
   createdAt      DateTime @default(now())
 
   userId         String
-  user           User     @relation(fields: [userId], references: [id])
+  user           User     @relation("UserRides", fields: [userId], references: [id])
+  driverId       String?
+  driver         User?    @relation("DriverRides", fields: [driverId], references: [id])
 }
 
 model RentalBooking {

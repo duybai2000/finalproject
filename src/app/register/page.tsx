@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-type Role = "USER" | "OWNER";
+type Role = "USER" | "OWNER" | "DRIVER";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,7 +55,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-300 text-sm font-medium mb-2">Bạn đăng ký với vai trò</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setRole("USER")}
@@ -79,6 +79,18 @@ export default function RegisterPage() {
               >
                 <div>Chủ xe</div>
                 <div className="text-xs font-normal mt-1 opacity-70">Cho thuê xe của tôi</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("DRIVER")}
+                className={`p-3 rounded-xl text-sm font-semibold transition border ${
+                  role === "DRIVER"
+                    ? "bg-purple-600/30 border-purple-400 text-white"
+                    : "bg-slate-900/50 border-white/10 text-gray-400 hover:border-white/30"
+                }`}
+              >
+                <div>Tài xế</div>
+                <div className="text-xs font-normal mt-1 opacity-70">Nhận chuyến từ khách</div>
               </button>
             </div>
           </div>

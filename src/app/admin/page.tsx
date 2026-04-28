@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
 
       <section className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-4">Cơ cấu doanh thu</h2>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">
             <p className="text-blue-200/80 text-xs uppercase tracking-wide">
               Doanh thu nền tảng
@@ -58,18 +58,18 @@ export default async function AdminDashboard() {
               {revenue.platformDirect.toLocaleString("vi-VN")} đ
             </p>
             <p className="text-xs text-blue-200/60 mt-1">
-              Cuốc xe + thuê xe của hệ thống
+              Đơn thuê xe của hệ thống + chuyến chưa nhận
             </p>
           </div>
           <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
             <p className="text-amber-200/80 text-xs uppercase tracking-wide">
-              Phí hoa hồng (15%)
+              Phí hoa hồng
             </p>
             <p className="text-2xl font-bold text-amber-300 mt-1">
               {revenue.commission.toLocaleString("vi-VN")} đ
             </p>
             <p className="text-xs text-amber-200/60 mt-1">
-              Từ xe của các chủ xe
+              15% chủ xe + 10% tài xế
             </p>
           </div>
           <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-xl p-4">
@@ -81,6 +81,17 @@ export default async function AdminDashboard() {
             </p>
             <p className="text-xs text-emerald-200/60 mt-1">
               85% giá trị đơn của chủ xe
+            </p>
+          </div>
+          <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">
+            <p className="text-purple-200/80 text-xs uppercase tracking-wide">
+              Đã chi cho tài xế
+            </p>
+            <p className="text-2xl font-bold text-purple-300 mt-1">
+              {revenue.driverPayouts.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-purple-200/60 mt-1">
+              90% giá trị chuyến của tài xế
             </p>
           </div>
         </div>
@@ -143,10 +154,7 @@ export default async function AdminDashboard() {
                     </td>
                     <td className="p-4 text-gray-300">
                       <p>{ride.distance}</p>
-                      <p className="text-xs text-gray-400">
-                        {ride.time}
-                        {ride.distanceKm !== null && ` - ${ride.distanceKm.toFixed(1)} km`}
-                      </p>
+                      <p className="text-xs text-gray-400">{ride.time}</p>
                     </td>
                     <td className="p-4 text-right text-emerald-400 font-bold">
                       {ride.estimatedPrice.toLocaleString("vi-VN")} d

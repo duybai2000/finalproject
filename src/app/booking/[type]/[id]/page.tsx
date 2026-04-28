@@ -69,19 +69,13 @@ export default async function BookingConfirmationPage({
               {ride.dropoff}
             </p>
             <p>
-              <span className="text-gray-400">Lich thue: </span>
+              <span className="text-gray-400">Lịch thuê: </span>
               {ride.distance}
             </p>
             <p>
-              <span className="text-gray-400">Thoi gian: </span>
+              <span className="text-gray-400">Thời gian: </span>
               {ride.time}
             </p>
-            {ride.distanceKm !== null && (
-              <p>
-                <span className="text-gray-400">Khoang cach: </span>
-                {ride.distanceKm.toFixed(1)} km
-              </p>
-            )}
             <p>
               <span className="text-gray-400">Tong gia: </span>
               <span className="text-emerald-400 font-bold">

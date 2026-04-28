@@ -4,21 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/admin", label: "Tổng quan" },
-  { href: "/admin/cars", label: "Quản lý xe" },
-  { href: "/admin/users", label: "Người dùng" },
-  { href: "/admin/messages", label: "Tin nhắn" },
+  { href: "/driver", label: "Tổng quan" },
+  { href: "/driver/available", label: "Chuyến đang chờ" },
+  { href: "/driver/my-rides", label: "Chuyến của tôi" },
 ];
 
-export default function AdminNav() {
+export default function DriverNav() {
   const pathname = usePathname();
-
   return (
     <nav className="flex gap-2 border-b border-white/10 pb-1">
       {TABS.map((tab) => {
         const active =
-          tab.href === "/admin"
-            ? pathname === "/admin"
+          tab.href === "/driver"
+            ? pathname === "/driver"
             : pathname.startsWith(tab.href);
         return (
           <Link
@@ -26,7 +24,7 @@ export default function AdminNav() {
             href={tab.href}
             className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
               active
-                ? "bg-white/10 text-white border-b-2 border-emerald-400"
+                ? "bg-white/10 text-white border-b-2 border-purple-400"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
             }`}
           >
