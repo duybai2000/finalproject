@@ -40,7 +40,12 @@ export default async function BookingConfirmationPage({
   const userId = session.user.id;
 
   if (type === "ride") {
-    const ride = await prisma.rideBooking.findUnique({ where: { id } });
+    const ride = await prisma.rideBooking.findUnique({
+      where: { id },
+      include: {
+        driver: { select: { name: true, phone: true } },
+      },
+    });
     if (!ride || ride.userId !== userId) notFound();
 
     return (
@@ -79,16 +84,47 @@ export default async function BookingConfirmationPage({
               </span>
             </p>
             <p>
-              <span className="text-gray-400">Trang thai: </span>
+              <span className="text-gray-400">Trạng thái: </span>
               <span className="text-xs bg-white/20 px-2 py-1 rounded">
                 {ride.status}
               </span>
             </p>
-            <p className="text-sm text-gray-400 pt-2">
-              {ride.paidAt
-                ? "Cam on ban da hoan tat thanh toan."
-                : "He thong dang tim tai xe phu hop. Quan tri vien se xac nhan don cua ban."}
-            </p>
+
+            {ride.driver ? (
+              <div className="border-t border-white/10 pt-3 mt-3 space-y-1">
+                <p className="text-sm text-emerald-200 font-semibold">
+                  Tài xế đã được phân công
+                </p>
+                <p>
+                  <span className="text-gray-400">Họ tên: </span>
+                  {ride.driver.name || "Chưa cập nhật"}
+                </p>
+                <p>
+                  <span className="text-gray-400">Số điện thoại: </span>
+                  {ride.driver.phone ? (
+                    <a
+                      href={`tel:${ride.driver.phone}`}
+                      className="text-blue-300 hover:underline"
+                    >
+                      {ride.driver.phone}
+                    </a>
+                  ) : (
+                    "Chưa cập nhật"
+                  )}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 pt-2">
+                Hệ thống đang tìm tài xế phù hợp. Bạn sẽ nhận thông tin liên hệ
+                ngay khi có tài xế nhận chuyến.
+              </p>
+            )}
+
+            {ride.paidAt && (
+              <p className="text-sm text-gray-400 pt-2 border-t border-white/10 mt-2">
+                Cảm ơn bạn đã hoàn tất thanh toán.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">

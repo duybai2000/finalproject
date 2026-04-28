@@ -10,6 +10,7 @@ model User {
   id            String   @id @default(cuid())
   email         String?  @unique
   name          String?
+  phone         String?
   password      String?
   role          String   @default("USER") // USER, OWNER, DRIVER, or ADMIN
   createdAt     DateTime @default(now())
@@ -18,6 +19,7 @@ model User {
   drivenRides   RideBooking[] @relation("DriverRides")
   rentals       RentalBooking[]
   cars          Car[]
+  ratings       Rating[]      @relation("RatingsByUser")
 }
 
 model RideBooking {
@@ -41,6 +43,7 @@ model RideBooking {
   user           User     @relation("UserRides", fields: [userId], references: [id])
   driverId       String?
   driver         User?    @relation("DriverRides", fields: [driverId], references: [id])
+  rating         Rating?
 }
 
 model RentalBooking {
@@ -55,6 +58,7 @@ model RentalBooking {
 
   userId         String
   user           User     @relation(fields: [userId], references: [id])
+  rating         Rating?
 }
 
 model Car {
@@ -79,4 +83,19 @@ model ContactMessage {
   email     String
   message   String
   createdAt DateTime @default(now())
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  score     Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  rideId    String?  @unique
+  ride      RideBooking?   @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  rentalId  String?  @unique
+  rental    RentalBooking? @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+
+  raterId   String
+  rater     User     @relation("RatingsByUser", fields: [raterId], references: [id])
 }

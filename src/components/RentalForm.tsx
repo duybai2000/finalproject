@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Car as CarIcon, Users, Settings } from "lucide-react";
+import { Calendar, Car as CarIcon, Star, Users, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -19,6 +19,8 @@ type CarModel = {
   surchargeTotal: number;
   img: string;
   description: string | null;
+  ratingAvg: number | null;
+  ratingCount: number;
 };
 
 export default function RentalForm() {
@@ -161,7 +163,16 @@ export default function RentalForm() {
               />
             </div>
             <div className="p-5">
-              <h3 className="text-xl font-bold text-white">{car.name}</h3>
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-xl font-bold text-white">{car.name}</h3>
+                {car.ratingAvg !== null && (
+                  <span className="flex items-center gap-1 text-sm text-amber-300 whitespace-nowrap">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    {car.ratingAvg.toFixed(1)}
+                    <span className="text-xs text-gray-400">({car.ratingCount})</span>
+                  </span>
+                )}
+              </div>
               {car.description && (
                 <p className="text-sm text-gray-300 mt-2 line-clamp-3">
                   {car.description}

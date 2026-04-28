@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("USER");
   const [error, setError] = useState("");
@@ -25,7 +26,13 @@ export default function RegisterPage() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone: phone || undefined,
+          password,
+          role,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -113,6 +120,19 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+            />
+          </div>
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-1">
+              Số điện thoại
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="VD: 0901234567"
+              className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              pattern="[0-9+\s().-]{8,20}"
             />
           </div>
           <div>

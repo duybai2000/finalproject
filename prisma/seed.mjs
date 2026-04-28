@@ -20,6 +20,7 @@ async function main() {
     create: {
       email: "admin@gmail.com",
       name: "Admin",
+      phone: "0900000001",
       password,
       role: "ADMIN",
     },
@@ -31,6 +32,7 @@ async function main() {
     create: {
       email: "user@gmail.com",
       name: "Student",
+      phone: "0901234567",
       password,
       role: "USER",
     },
@@ -42,6 +44,7 @@ async function main() {
     create: {
       email: "owner@gmail.com",
       name: "Anh Tuan",
+      phone: "0908888888",
       password,
       role: "OWNER",
     },

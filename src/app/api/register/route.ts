@@ -5,11 +5,16 @@ import prisma from "@/lib/prisma";
 
 const RegisterSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
-  email: z.string().trim().toLowerCase().email("Email khong hop le.").max(254),
+  email: z.string().trim().toLowerCase().email("Email không hợp lệ.").max(254),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[0-9+\s().-]{8,20}$/, "Số điện thoại không hợp lệ.")
+    .optional(),
   password: z
     .string()
-    .min(6, "Mat khau toi thieu 6 ky tu.")
-    .max(128, "Mat khau qua dai."),
+    .min(6, "Mật khẩu tối thiểu 6 ký tự.")
+    .max(128, "Mật khẩu quá dài."),
   role: z.enum(["USER", "OWNER", "DRIVER"]).optional(),
 });
 
@@ -25,12 +30,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password, role } = parsed.data;
+    const { name, email, phone, password, role } = parsed.data;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email da duoc su dung." },
+        { error: "Email đã được sử dụng." },
         { status: 400 }
       );
     }
@@ -38,7 +43,13 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword, role: role ?? "USER" },
+      data: {
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+        role: role ?? "USER",
+      },
     });
 
     return NextResponse.json({

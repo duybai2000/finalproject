@@ -21,7 +21,7 @@ export default async function OwnerBookingsPage() {
       : await prisma.rentalBooking.findMany({
           where: { carId: { in: carIds } },
           orderBy: { createdAt: "desc" },
-          include: { user: { select: { name: true, email: true } } },
+          include: { user: { select: { name: true, email: true, phone: true } } },
         });
 
   return (
@@ -52,6 +52,14 @@ export default async function OwnerBookingsPage() {
                     <td className="p-4">
                       <p className="font-medium">{b.user.name || "Khách"}</p>
                       <p className="text-xs text-gray-400">{b.user.email}</p>
+                      {b.user.phone && (
+                        <a
+                          href={`tel:${b.user.phone}`}
+                          className="text-xs text-blue-300 hover:underline"
+                        >
+                          {b.user.phone}
+                        </a>
+                      )}
                     </td>
                     <td className="p-4">{b.carName}</td>
                     <td className="p-4 text-gray-300">{b.dateRange}</td>

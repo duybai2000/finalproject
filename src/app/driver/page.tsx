@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
@@ -8,7 +9,7 @@ export default async function DriverDashboard() {
   const session = await getServerSession(authOptions);
   const driverId = session!.user.id;
 
-  const [pendingCount, myRides, earnings] = await Promise.all([
+  const [pendingCount, myRides, earnings, ratings] = await Promise.all([
     prisma.rideBooking.count({
       where: { status: "PENDING", driverId: null },
     }),
@@ -18,11 +19,23 @@ export default async function DriverDashboard() {
       take: 5,
     }),
     getDriverEarnings(driverId),
+    prisma.rating.findMany({
+      where: { ride: { driverId } },
+      select: { score: true, comment: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+
+  const ratingAvg =
+    ratings.length === 0
+      ? null
+      : Math.round(
+          (ratings.reduce((s, r) => s + r.score, 0) / ratings.length) * 10
+        ) / 10;
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Stat label="Chuyến đang chờ" value={pendingCount} accent="orange" />
         <Stat label="Chuyến của tôi" value={myRides.length} accent="blue" />
         <Stat label="Đã hoàn tất" value={earnings.paidRides} accent="emerald" />
@@ -31,7 +44,48 @@ export default async function DriverDashboard() {
           value={`${earnings.net.toLocaleString("vi-VN")} đ`}
           accent="emerald"
         />
+        <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
+          <h3 className="text-xs text-gray-400 uppercase tracking-wide">Đánh giá</h3>
+          {ratingAvg === null ? (
+            <p className="text-sm text-gray-500 mt-2">Chưa có đánh giá</p>
+          ) : (
+            <div className="mt-2">
+              <p className="text-2xl font-bold text-amber-400 flex items-center gap-1">
+                <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                {ratingAvg.toFixed(1)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {ratings.length} đánh giá
+              </p>
+            </div>
+          )}
+        </div>
       </div>
+
+      {ratings.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Đánh giá gần đây</h2>
+          <ul className="space-y-3">
+            {ratings.slice(0, 5).map((r, i) => (
+              <li key={i} className="border-b border-white/5 last:border-b-0 pb-3 last:pb-0">
+                <div className="flex items-center gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                      key={n}
+                      className={`w-4 h-4 ${r.score >= n ? "fill-amber-400 text-amber-400" : "text-gray-600"}`}
+                    />
+                  ))}
+                </div>
+                {r.comment && (
+                  <p className="text-sm text-gray-300 italic">
+                    &quot;{r.comment}&quot;
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-4">Thu nhập của bạn</h2>

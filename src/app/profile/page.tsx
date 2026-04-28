@@ -2,8 +2,10 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import { Star } from "lucide-react";
 import CancelBookingButton from "@/components/CancelBookingButton";
 import EditProfileForm from "@/components/EditProfileForm";
+import RatingForm from "@/components/RatingForm";
 
 function buildOpenStreetMapUrl(lat: number, lng: number) {
   return `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=16/${lat.toFixed(6)}/${lng.toFixed(6)}`;
@@ -18,15 +20,25 @@ export default async function ProfilePage() {
 
   const user = session.user;
 
-  const rides = await prisma.rideBooking.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const rentals = await prisma.rentalBooking.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const [dbUser, rides, rentals] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { phone: true },
+    }),
+    prisma.rideBooking.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        driver: { select: { name: true, phone: true } },
+        rating: true,
+      },
+    }),
+    prisma.rentalBooking.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: { rating: true },
+    }),
+  ]);
 
   return (
     <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
@@ -37,10 +49,16 @@ export default async function ProfilePage() {
           <h2 className="text-xl font-bold mb-2">Thông tin tài khoản</h2>
           <p className="text-gray-400">Tên: {user.name || "Chưa cập nhật"}</p>
           <p className="text-gray-400">Email: {user.email || "Không có"}</p>
+          <p className="text-gray-400">
+            SĐT: {dbUser?.phone || "Chưa cập nhật"}
+          </p>
         </div>
 
         <div className="mb-8">
-          <EditProfileForm initialName={user.name || ""} />
+          <EditProfileForm
+            initialName={user.name || ""}
+            initialPhone={dbUser?.phone || ""}
+          />
         </div>
 
         <h2 className="text-2xl font-bold mb-4 text-blue-400">Cuoc Xe Da Dat</h2>
@@ -79,16 +97,26 @@ export default async function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="text-right shrink-0 space-y-1">
+                <div className="text-right shrink-0 space-y-1 min-w-[180px]">
                   <p className="text-emerald-400 font-bold">
-                    {ride.estimatedPrice.toLocaleString("vi-VN")} d
+                    {ride.estimatedPrice.toLocaleString("vi-VN")} đ
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {ride.status}
                   </span>
+                  {ride.driver && (
+                    <p className="text-xs text-gray-400">
+                      Tài xế: {ride.driver.name || "—"}
+                      {ride.driver.phone && ` (${ride.driver.phone})`}
+                    </p>
+                  )}
                   {ride.status === "PENDING" && (
                     <CancelBookingButton type="ride" id={ride.id} />
                   )}
+                  {ride.status === "COMPLETED" && !ride.rating && (
+                    <RatingForm type="ride" id={ride.id} />
+                  )}
+                  {ride.rating && <RatingDisplay rating={ride.rating} />}
                 </div>
               </div>
             ))
@@ -109,9 +137,9 @@ export default async function ProfilePage() {
                   <p className="font-semibold">{rental.carName}</p>
                   <p className="text-sm text-gray-400">{rental.dateRange}</p>
                 </div>
-                <div className="text-right shrink-0 space-y-1">
+                <div className="text-right shrink-0 space-y-1 min-w-[180px]">
                   <p className="text-emerald-400 font-bold">
-                    {rental.totalPrice.toLocaleString("vi-VN")} d
+                    {rental.totalPrice.toLocaleString("vi-VN")} đ
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {rental.status}
@@ -119,12 +147,44 @@ export default async function ProfilePage() {
                   {rental.status === "PENDING" && (
                     <CancelBookingButton type="rental" id={rental.id} />
                   )}
+                  {rental.status === "COMPLETED" && !rental.rating && (
+                    <RatingForm type="rental" id={rental.id} />
+                  )}
+                  {rental.rating && <RatingDisplay rating={rental.rating} />}
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function RatingDisplay({
+  rating,
+}: {
+  rating: { score: number; comment: string | null };
+}) {
+  return (
+    <div className="text-xs text-gray-400 pt-1">
+      <div className="flex items-center justify-end gap-0.5">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Star
+            key={n}
+            className={`w-3.5 h-3.5 ${
+              rating.score >= n
+                ? "fill-amber-400 text-amber-400"
+                : "text-gray-600"
+            }`}
+          />
+        ))}
+      </div>
+      {rating.comment && (
+        <p className="italic mt-1 text-right max-w-[180px] line-clamp-2">
+          &quot;{rating.comment}&quot;
+        </p>
+      )}
     </div>
   );
 }

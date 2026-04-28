@@ -8,6 +8,12 @@ import { authOptions } from "@/lib/auth";
 const ProfileSchema = z
   .object({
     name: z.string().trim().min(1).max(100).optional(),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^[0-9+\s().-]{8,20}$/, "Số điện thoại không hợp lệ.")
+      .optional()
+      .or(z.literal("")),
     currentPassword: z.string().min(1).optional(),
     newPassword: z.string().min(6, "Mật khẩu mới tối thiểu 6 ký tự.").max(128).optional(),
   })
@@ -36,7 +42,7 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const { name, currentPassword, newPassword } = parsed.data;
+  const { name, phone, currentPassword, newPassword } = parsed.data;
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -48,8 +54,9 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const data: { name?: string; password?: string } = {};
+  const data: { name?: string; phone?: string | null; password?: string } = {};
   if (name !== undefined) data.name = name;
+  if (phone !== undefined) data.phone = phone === "" ? null : phone;
 
   if (newPassword && currentPassword) {
     if (!user.password) {

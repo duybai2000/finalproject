@@ -10,7 +10,7 @@ export default async function DriverMyRidesPage() {
   const rides = await prisma.rideBooking.findMany({
     where: { driverId: session!.user.id },
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { name: true, email: true } } },
+    include: { user: { select: { name: true, email: true, phone: true } } },
   });
 
   return (
@@ -42,6 +42,14 @@ export default async function DriverMyRidesPage() {
                     <td className="p-4">
                       <p className="font-medium">{ride.user.name || "Khách"}</p>
                       <p className="text-xs text-gray-400">{ride.user.email}</p>
+                      {ride.user.phone && (
+                        <a
+                          href={`tel:${ride.user.phone}`}
+                          className="text-xs text-blue-300 hover:underline"
+                        >
+                          {ride.user.phone}
+                        </a>
+                      )}
                     </td>
                     <td className="p-4">
                       <p className="break-words max-w-xs">{ride.pickup}</p>

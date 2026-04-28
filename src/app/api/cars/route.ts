@@ -12,9 +12,35 @@ export async function GET(request: Request) {
     orderBy: { id: "asc" },
   });
 
+  // Aggregate ratings: each rental can have one rating; rating belongs via
+  // rental.carId. We compute per-car average + count in a single pass.
+  const ratingsByCar = await prisma.rentalBooking.groupBy({
+    by: ["carId"],
+    where: { rating: { isNot: null } },
+    _count: { _all: true },
+  });
+  const ratedCarIds = ratingsByCar.map((r) => r.carId);
+  const ratings =
+    ratedCarIds.length === 0
+      ? []
+      : await prisma.rating.findMany({
+          where: { rental: { carId: { in: ratedCarIds } } },
+          select: { score: true, rental: { select: { carId: true } } },
+        });
+
+  const aggregateByCar = new Map<number, { sum: number; count: number }>();
+  for (const r of ratings) {
+    const carId = r.rental?.carId;
+    if (typeof carId !== "number") continue;
+    const cur = aggregateByCar.get(carId) ?? { sum: 0, count: 0 };
+    cur.sum += r.score;
+    cur.count += 1;
+    aggregateByCar.set(carId, cur);
+  }
+
   const enriched = cars.map((car) => {
     const pricing = calculateCarRentalPrice(car.dailyRate, pickupDate, returnDate);
-
+    const agg = aggregateByCar.get(car.id);
     return {
       id: car.id,
       name: car.name,
@@ -29,6 +55,8 @@ export async function GET(request: Request) {
       totalDays: pricing?.totalDays ?? null,
       surchargeDays: pricing?.surchargeDays ?? 0,
       surchargeTotal: pricing?.surchargeTotal ?? 0,
+      ratingAvg: agg ? Math.round((agg.sum / agg.count) * 10) / 10 : null,
+      ratingCount: agg?.count ?? 0,
     };
   });
 

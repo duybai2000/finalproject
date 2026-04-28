@@ -5,10 +5,12 @@ import { useState } from "react";
 
 type Props = {
   initialName: string;
+  initialPhone: string;
 };
 
-export default function EditProfileForm({ initialName }: Props) {
+export default function EditProfileForm({ initialName, initialPhone }: Props) {
   const [name, setName] = useState(initialName);
+  const [phone, setPhone] = useState(initialPhone);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,6 +26,7 @@ export default function EditProfileForm({ initialName }: Props) {
 
     const body: Record<string, string> = {};
     if (name && name !== initialName) body.name = name;
+    if (phone !== initialPhone) body.phone = phone;
     if (newPassword) {
       if (!currentPassword) {
         setError("Cần nhập mật khẩu hiện tại để đổi mật khẩu.");
@@ -75,6 +78,16 @@ export default function EditProfileForm({ initialName }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={100}
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Số điện thoại">
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="VD: 0901234567"
           className={inputClass}
         />
       </Field>
