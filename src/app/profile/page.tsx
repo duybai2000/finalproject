@@ -55,7 +55,7 @@ export default async function ProfilePage() {
               >
                 <div className="min-w-0">
                   <p className="font-semibold break-words">
-                    {ride.pickup} -&gt; {ride.dropoff}
+                    Điểm đón: {ride.pickup}
                   </p>
                   <p className="text-sm text-gray-400">
                     {ride.distance} - {ride.time}

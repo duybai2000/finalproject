@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import {
-  MapPin,
   Calendar,
   User,
   LocateFixed,
@@ -11,7 +10,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { DESTINATIONS, findDestination } from "@/lib/destinations";
 
 type PickupLocation = {
   lat: number;
@@ -47,8 +45,6 @@ function buildOpenStreetMapUrl(lat: number, lng: number) {
 
 export default function RideForm() {
   const [pickup, setPickup] = useState("");
-  const [dropoffId, setDropoffId] = useState("");
-  const dropoffDestination = useMemo(() => findDestination(dropoffId), [dropoffId]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [pickupLocation, setPickupLocation] = useState<PickupLocation | null>(null);
@@ -122,12 +118,7 @@ export default function RideForm() {
   const handleEstimate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!pickup || !dropoffDestination || !startDate || !endDate) {
-      return;
-    }
-
-    if (!pickupLocation) {
-      setError("Hay bam Lay vi tri hien tai truoc khi dat xe.");
+    if (!pickup || !startDate || !endDate) {
       return;
     }
 
@@ -172,26 +163,28 @@ export default function RideForm() {
   };
 
   const handleConfirm = async () => {
-    if (!pickupLocation || !estimate || !dropoffDestination) return;
+    if (!estimate) return;
 
     setError("");
     setIsConfirming(true);
 
     try {
+      const payload: Record<string, unknown> = {
+        pickup,
+        startDate,
+        endDate,
+      };
+
+      if (pickupLocation) {
+        payload.pickupLat = pickupLocation.lat;
+        payload.pickupLng = pickupLocation.lng;
+        payload.pickupAccuracy = pickupLocation.accuracy;
+      }
+
       const res = await fetch("/api/ride", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pickup,
-          dropoff: dropoffDestination.name,
-          startDate,
-          endDate,
-          pickupLat: pickupLocation.lat,
-          pickupLng: pickupLocation.lng,
-          pickupAccuracy: pickupLocation.accuracy,
-          dropoffLat: dropoffDestination.lat,
-          dropoffLng: dropoffDestination.lng,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const contentType = res.headers.get("content-type");
@@ -234,34 +227,13 @@ export default function RideForm() {
         </p>
 
         <form onSubmit={handleEstimate} className="space-y-4">
-          <button
-            type="button"
-            onClick={handleUseCurrentLocation}
-            disabled={isLocating}
-            className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-70 text-white font-medium py-3 px-4 rounded-xl border border-white/10 transition-colors"
-          >
-            <LocateFixed className="w-5 h-5" />
-            {isLocating ? "Dang lay vi tri..." : "Lay vi tri hien tai"}
-          </button>
-
-          {locationMessage && (
-            <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-              <p>{locationMessage}</p>
-              {pickupLocation && pickupLocation.accuracy !== null && (
-                <p className="mt-1 text-emerald-100/80">
-                  Sai so GPS: ~{Math.round(pickupLocation.accuracy)} m
-                </p>
-              )}
-            </div>
-          )}
-
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <User className="w-5 h-5" />
             </div>
             <input
               type="text"
-              placeholder="Diem don"
+              placeholder="Điểm đón"
               value={pickup}
               onChange={(e) => setPickup(e.target.value)}
               className="w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-400 px-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -269,26 +241,30 @@ export default function RideForm() {
             />
           </div>
 
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
-              <MapPin className="w-5 h-5" />
+          <button
+            type="button"
+            onClick={handleUseCurrentLocation}
+            disabled={isLocating}
+            className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70 text-gray-300 text-sm font-medium py-2.5 px-4 rounded-xl border border-white/10 transition-colors"
+          >
+            <LocateFixed className="w-4 h-4" />
+            {isLocating
+              ? "Đang lấy vị trí..."
+              : pickupLocation
+                ? "Cập nhật vị trí GPS"
+                : "Lấy vị trí hiện tại (tùy chọn)"}
+          </button>
+
+          {locationMessage && (
+            <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <p>{locationMessage}</p>
+              {pickupLocation && pickupLocation.accuracy !== null && (
+                <p className="mt-1 text-emerald-100/80">
+                  Sai số GPS: ~{Math.round(pickupLocation.accuracy)} m
+                </p>
+              )}
             </div>
-            <select
-              value={dropoffId}
-              onChange={(e) => setDropoffId(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 text-white px-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none"
-              required
-            >
-              <option value="" disabled>
-                Chon diem den
-              </option>
-              {DESTINATIONS.map((d) => (
-                <option key={d.id} value={d.id} className="bg-slate-800">
-                  {d.name} ({d.region})
-                </option>
-              ))}
-            </select>
-          </div>
+          )}
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="relative block">
@@ -366,9 +342,9 @@ export default function RideForm() {
                 </p>
               )}
             </div>
-            {pickupLocation && dropoffDestination && (
+            {pickupLocation && (
               <p className="mt-3 text-xs text-gray-400">
-                Điểm đón GPS &rarr; {dropoffDestination.name}
+                Tọa độ đã lưu: {pickupLocation.lat.toFixed(5)}, {pickupLocation.lng.toFixed(5)}
               </p>
             )}
             <button

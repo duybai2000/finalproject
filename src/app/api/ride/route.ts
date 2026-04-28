@@ -7,14 +7,12 @@ import { calculateDriverHirePrice } from "@/lib/pricing";
 
 const RideSchema = z.object({
   pickup: z.string().trim().min(1, "Vui lòng nhập điểm đón.").max(200),
-  dropoff: z.string().trim().min(1, "Vui lòng chọn điểm đến.").max(200),
+  dropoff: z.string().trim().max(200).optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
-  pickupLat: z.number().min(-90).max(90),
-  pickupLng: z.number().min(-180).max(180),
+  pickupLat: z.number().min(-90).max(90).optional(),
+  pickupLng: z.number().min(-180).max(180).optional(),
   pickupAccuracy: z.number().nonnegative().nullable().optional(),
-  dropoffLat: z.number().min(-90).max(90).optional(),
-  dropoffLng: z.number().min(-180).max(180).optional(),
 });
 
 export async function POST(request: Request) {
@@ -46,8 +44,6 @@ export async function POST(request: Request) {
       pickupLat,
       pickupLng,
       pickupAccuracy,
-      dropoffLat,
-      dropoffLng,
     } = parsed.data;
 
     const pricing = calculateDriverHirePrice(startDate, endDate);
@@ -62,13 +58,11 @@ export async function POST(request: Request) {
     const savedRide = await prisma.rideBooking.create({
       data: {
         pickup,
-        dropoff,
-        pickupLat,
-        pickupLng,
+        dropoff: dropoff ?? null,
+        pickupLat: pickupLat ?? null,
+        pickupLng: pickupLng ?? null,
         pickupAccuracy: pickupAccuracy ?? null,
-        dropoffLat: dropoffLat ?? null,
-        dropoffLng: dropoffLng ?? null,
-        locationCapturedAt: new Date(),
+        locationCapturedAt: pickupLat !== undefined ? new Date() : null,
         estimatedPrice: pricing.total,
         distance: `${startDate} đến ${endDate}`,
         time: `${pricing.totalDays} ngày`,

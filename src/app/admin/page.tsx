@@ -133,7 +133,7 @@ export default async function AdminDashboard() {
               <thead className="text-gray-400 border-b border-white/10">
                 <tr>
                   <th className="text-left p-4">Khach hang</th>
-                  <th className="text-left p-4">Lo trinh</th>
+                  <th className="text-left p-4">Điểm đón</th>
                   <th className="text-left p-4">Lich</th>
                   <th className="text-right p-4">Gia</th>
                   <th className="text-center p-4">TT</th>
@@ -148,9 +148,7 @@ export default async function AdminDashboard() {
                       <p className="text-xs text-gray-400">{ride.user.email}</p>
                     </td>
                     <td className="p-4">
-                      <p className="break-words max-w-xs">
-                        {ride.pickup} -&gt; {ride.dropoff}
-                      </p>
+                      <p className="break-words max-w-xs">{ride.pickup}</p>
                     </td>
                     <td className="p-4 text-gray-300">
                       <p>{ride.distance}</p>

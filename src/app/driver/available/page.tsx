@@ -22,7 +22,7 @@ export default async function AvailableRidesPage() {
             <thead className="text-gray-400 border-b border-white/10">
               <tr>
                 <th className="text-left p-4">Khách</th>
-                <th className="text-left p-4">Lộ trình</th>
+                <th className="text-left p-4">Điểm đón</th>
                 <th className="text-left p-4">Lịch</th>
                 <th className="text-right p-4">Giá đơn</th>
                 <th className="text-right p-4">Bạn nhận (90%)</th>
@@ -38,9 +38,7 @@ export default async function AvailableRidesPage() {
                       <p className="font-medium">{ride.user.name || "Khách"}</p>
                     </td>
                     <td className="p-4">
-                      <p className="break-words max-w-xs">
-                        {ride.pickup} → {ride.dropoff}
-                      </p>
+                      <p className="break-words max-w-xs">{ride.pickup}</p>
                     </td>
                     <td className="p-4 text-gray-300">
                       <p>{ride.distance}</p>

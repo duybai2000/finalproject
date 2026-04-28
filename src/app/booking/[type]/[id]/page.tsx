@@ -61,12 +61,8 @@ export default async function BookingConfirmationPage({
               <PaidBadge paidAt={ride.paidAt} />
             </div>
             <p>
-              <span className="text-gray-400">Diem don: </span>
+              <span className="text-gray-400">Điểm đón: </span>
               {ride.pickup}
-            </p>
-            <p>
-              <span className="text-gray-400">Diem den: </span>
-              {ride.dropoff}
             </p>
             <p>
               <span className="text-gray-400">Lịch thuê: </span>

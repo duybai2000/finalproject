@@ -27,7 +27,7 @@ export default async function DriverMyRidesPage() {
             <thead className="text-gray-400 border-b border-white/10">
               <tr>
                 <th className="text-left p-4">Khách</th>
-                <th className="text-left p-4">Lộ trình</th>
+                <th className="text-left p-4">Điểm đón</th>
                 <th className="text-left p-4">Lịch</th>
                 <th className="text-right p-4">Bạn nhận</th>
                 <th className="text-center p-4">TT</th>
@@ -44,9 +44,7 @@ export default async function DriverMyRidesPage() {
                       <p className="text-xs text-gray-400">{ride.user.email}</p>
                     </td>
                     <td className="p-4">
-                      <p className="break-words max-w-xs">
-                        {ride.pickup} → {ride.dropoff}
-                      </p>
+                      <p className="break-words max-w-xs">{ride.pickup}</p>
                     </td>
                     <td className="p-4 text-gray-300">
                       <p>{ride.distance}</p>

@@ -31,7 +31,7 @@ export default async function PaymentPage({
         type="ride"
         id={ride.id}
         amount={ride.estimatedPrice}
-        label={`Thue tai xe: ${ride.pickup} -> ${ride.dropoff}`}
+        label={`Thuê tài xế từ ${ride.pickup}`}
       />
     );
   }

@@ -23,7 +23,7 @@ model User {
 model RideBooking {
   id             String   @id @default(cuid())
   pickup         String
-  dropoff        String
+  dropoff        String?
   pickupLat      Float?
   pickupLng      Float?
   pickupAccuracy Float?
