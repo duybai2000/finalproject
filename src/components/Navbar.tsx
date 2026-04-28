@@ -23,9 +23,12 @@ export default function Navbar() {
                </Link>
 
                {session.user.role === 'ADMIN' && (
-                 <Link href="/admin" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition">
+                 <Link
+                   href="/admin"
+                   className="flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 px-3 py-1.5 rounded-lg font-semibold transition shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+                 >
                    <LayoutDashboard className="w-5 h-5" />
-                   <span className="hidden sm:inline">Admin</span>
+                   <span>Admin</span>
                  </Link>
                )}
 

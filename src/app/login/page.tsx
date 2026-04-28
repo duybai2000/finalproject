@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -22,10 +22,13 @@ export default function LoginPage() {
 
     if (res?.error) {
       setError("Thông tin đăng nhập không chính xác");
-    } else {
-      router.push("/");
-      router.refresh();
+      return;
     }
+
+    const session = await getSession();
+    const target = session?.user?.role === "ADMIN" ? "/admin" : "/";
+    router.push(target);
+    router.refresh();
   };
 
   return (

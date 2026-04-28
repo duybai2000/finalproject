@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Car, Navigation } from "lucide-react";
+import { Car, Navigation, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import RideForm from "@/components/RideForm";
 import RentalForm from "@/components/RentalForm";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"ride" | "rent">("ride");
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
 
   return (
     <div className="min-h-screen bg-slate-900 overflow-hidden relative font-sans">
@@ -25,7 +29,33 @@ export default function Home() {
       </div>
 
       <main className="relative z-20 flex flex-col items-center pt-24 px-4 sm:px-6 lg:px-8 pb-32 min-h-screen">
-        <motion.div 
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-3xl mx-auto mb-8 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 backdrop-blur-md px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <LayoutDashboard className="w-5 h-5 text-emerald-300" />
+              <div>
+                <p className="text-emerald-100 font-semibold">
+                  Bạn đang đăng nhập với vai trò Admin
+                </p>
+                <p className="text-emerald-200/70 text-sm">
+                  Vào trang quản trị để xem dashboard, quản lý xe và người dùng.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/admin"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
+            >
+              Mở Admin
+            </Link>
+          </motion.div>
+        )}
+
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
