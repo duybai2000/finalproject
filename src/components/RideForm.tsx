@@ -100,22 +100,22 @@ export default function RideForm() {
     if (address) {
       skipNextForwardGeocode.current = true;
       setPickup(address);
-      setLocationMessage(`Đã chọn vị trí từ bản đồ`);
+      setLocationMessage(`Pickup set from map`);
     } else {
       setLocationMessage(
-        `Đã chọn: ${lat.toFixed(5)}, ${lng.toFixed(5)} (đang tra cứu địa chỉ...)`
+        `Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)} (looking up address...)`
       );
     }
   };
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setError("Trinh duyet nay khong ho tro lay vi tri.");
+      setError("This browser does not support geolocation.");
       return;
     }
 
     setError("");
-    setLocationMessage("Đang lấy vị trí hiện tại...");
+    setLocationMessage("Getting current location...");
     setIsLocating(true);
 
     navigator.geolocation.getCurrentPosition(
@@ -130,7 +130,7 @@ export default function RideForm() {
 
         setPickupLocation(nextLocation);
         setLocationMessage(
-          `Đã lấy vị trí: ${nextLocation.lat.toFixed(5)}, ${nextLocation.lng.toFixed(5)}`
+          `Location captured: ${nextLocation.lat.toFixed(5)}, ${nextLocation.lng.toFixed(5)}`
         );
 
         try {
@@ -156,8 +156,8 @@ export default function RideForm() {
       (geoError) => {
         const nextError =
           geoError.code === geoError.PERMISSION_DENIED
-            ? "Bạn đã từ chối quyền vị trí."
-            : "Không lấy được vị trí hiện tại.";
+            ? "Location permission denied."
+            : "Could not get your current location.";
 
         setPickupLocation(null);
         setLocationMessage("");
@@ -193,10 +193,10 @@ export default function RideForm() {
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
         ? await res.json()
-        : { error: "Server đang trả về định dạng không hợp lệ." };
+        : { error: "Server returned an unexpected response." };
 
       if (!res.ok) {
-        setError(data.error || "Không thể tính giá thuê tài xế.");
+        setError(data.error || "Could not calculate the price.");
         return;
       }
 
@@ -213,7 +213,7 @@ export default function RideForm() {
       }
     } catch (err) {
       console.error(err);
-      setError("Khong the ket noi server. Vui long thu lai.");
+      setError("Could not reach the server. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -247,7 +247,7 @@ export default function RideForm() {
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
         ? await res.json()
-        : { error: "Server dang tra ve dinh dang khong hop le." };
+        : { error: "Server returned an unexpected response." };
 
       if (res.status === 401) {
         router.push("/login");
@@ -255,7 +255,7 @@ export default function RideForm() {
       }
 
       if (!res.ok) {
-        setError(data.error || "Khong the dat tai xe.");
+        setError(data.error || "Could not place the booking.");
         return;
       }
 
@@ -264,7 +264,7 @@ export default function RideForm() {
       }
     } catch (err) {
       console.error(err);
-      setError("Khong the ket noi server. Vui long thu lai.");
+      setError("Could not reach the server. Please try again.");
     } finally {
       setIsConfirming(false);
     }
@@ -278,9 +278,9 @@ export default function RideForm() {
       className="w-full max-w-5xl mx-auto grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]"
     >
       <section className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl shadow-xl">
-        <h2 className="text-2xl font-bold text-white mb-2">Thue Tai Xe Theo Ngay</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Hire a Driver by the Day</h2>
         <p className="text-sm text-gray-400 mb-6">
-          Giá cơ bản 1.000.000 đ/ngày. Thứ 7, Chủ nhật và ngày lễ tính thêm 20%.
+          Base rate 1,000,000 VND/day. Saturdays, Sundays, and public holidays are surcharged 20%.
         </p>
 
         <form onSubmit={handleEstimate} className="space-y-4">
@@ -290,7 +290,7 @@ export default function RideForm() {
             </div>
             <input
               type="text"
-              placeholder="Điểm đón"
+              placeholder="Pickup address"
               value={pickup}
               onChange={(e) => setPickup(e.target.value)}
               className="w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-400 px-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -306,10 +306,10 @@ export default function RideForm() {
           >
             <LocateFixed className="w-4 h-4" />
             {isLocating
-              ? "Đang lấy vị trí..."
+              ? "Getting location..."
               : pickupLocation
-                ? "Cập nhật vị trí GPS"
-                : "Lấy vị trí hiện tại (tùy chọn)"}
+                ? "Update GPS location"
+                : "Use my current location (optional)"}
           </button>
 
           {locationMessage && (
@@ -317,7 +317,7 @@ export default function RideForm() {
               <p>{locationMessage}</p>
               {pickupLocation && pickupLocation.accuracy !== null && (
                 <p className="mt-1 text-emerald-100/80">
-                  Sai số GPS: ~{Math.round(pickupLocation.accuracy)} m
+                  GPS accuracy: ~{Math.round(pickupLocation.accuracy)} m
                 </p>
               )}
             </div>
@@ -325,7 +325,7 @@ export default function RideForm() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="relative block">
-              <span className="mb-2 block text-sm font-medium text-gray-300">Ngay bat dau</span>
+              <span className="mb-2 block text-sm font-medium text-gray-300">Start date</span>
               <Calendar className="absolute left-3 bottom-3.5 text-gray-400 w-5 h-5" />
               <input
                 type="date"
@@ -344,7 +344,7 @@ export default function RideForm() {
             </label>
 
             <label className="relative block">
-              <span className="mb-2 block text-sm font-medium text-gray-300">Ngay ket thuc</span>
+              <span className="mb-2 block text-sm font-medium text-gray-300">End date</span>
               <Calendar className="absolute left-3 bottom-3.5 text-gray-400 w-5 h-5" />
               <input
                 type="date"
@@ -362,7 +362,7 @@ export default function RideForm() {
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            {isLoading ? "Dang xu ly..." : "Tinh Gia Thue Tai Xe"}
+            {isLoading ? "Calculating..." : "Calculate Price"}
           </button>
         </form>
 
@@ -379,29 +379,29 @@ export default function RideForm() {
             className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10"
           >
             <div className="flex justify-between items-center text-white mb-3">
-              <span className="text-gray-300">Tong gia tai xe:</span>
+              <span className="text-gray-300">Total:</span>
               <span className="text-xl font-bold text-blue-400">
-                {estimate.price.toLocaleString("vi-VN")} d
+                {estimate.price.toLocaleString("en-US")} VND
               </span>
             </div>
             <div className="grid gap-2 text-sm text-gray-400">
               <p className="flex items-center gap-2">
                 <BriefcaseBusiness className="w-4 h-4" />
-                Đơn giá: {estimate.dailyRate.toLocaleString("vi-VN")} đ/ngày
+                Daily rate: {estimate.dailyRate.toLocaleString("en-US")} VND/day
               </p>
-              <p>Lịch thuê: {estimate.schedule}</p>
-              <p>Thời gian: {estimate.durationLabel}</p>
-              <p>Ngày cuối tuần / ngày lễ: {estimate.surchargeDays}</p>
+              <p>Schedule: {estimate.schedule}</p>
+              <p>Duration: {estimate.durationLabel}</p>
+              <p>Weekend / holiday days: {estimate.surchargeDays}</p>
               {estimate.surchargeTotal > 0 && (
                 <p>
-                  Phụ thu cuối tuần / ngày lễ: +
-                  {estimate.surchargeTotal.toLocaleString("vi-VN")} đ
+                  Weekend / holiday surcharge: +
+                  {estimate.surchargeTotal.toLocaleString("en-US")} VND
                 </p>
               )}
             </div>
             {pickupLocation && (
               <p className="mt-3 text-xs text-gray-400">
-                Tọa độ đã lưu: {pickupLocation.lat.toFixed(5)}, {pickupLocation.lng.toFixed(5)}
+                Saved coordinates: {pickupLocation.lat.toFixed(5)}, {pickupLocation.lng.toFixed(5)}
               </p>
             )}
             <button
@@ -410,7 +410,7 @@ export default function RideForm() {
               disabled={isConfirming}
               className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-70 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             >
-              {isConfirming ? "Dang xac nhan..." : "Xac Nhan Dat Tai Xe"}
+              {isConfirming ? "Confirming..." : "Confirm Booking"}
             </button>
           </motion.div>
         )}
@@ -419,10 +419,10 @@ export default function RideForm() {
       <section className="bg-white/10 backdrop-blur-lg border border-white/20 p-4 rounded-2xl shadow-xl min-h-[560px] flex flex-col">
         <div className="flex items-center justify-between gap-3 px-2 pb-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">Bản đồ điểm đón</h3>
+            <h3 className="text-lg font-semibold text-white">Pickup map</h3>
             <p className="text-sm text-gray-400">
-              Bấm trực tiếp lên bản đồ để chọn điểm đón. Địa chỉ sẽ tự động
-              điền vào ô &quot;Điểm đón&quot;.
+              Click anywhere on the map to set the pickup point — the address
+              will auto-fill in the &quot;Pickup&quot; field.
             </p>
           </div>
         </div>

@@ -36,18 +36,18 @@ export default async function DriverDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Stat label="Chuyến đang chờ" value={pendingCount} accent="orange" />
-        <Stat label="Chuyến của tôi" value={myRides.length} accent="blue" />
-        <Stat label="Đã hoàn tất" value={earnings.paidRides} accent="emerald" />
+        <Stat label="Available rides" value={pendingCount} accent="orange" />
+        <Stat label="My rides" value={myRides.length} accent="blue" />
+        <Stat label="Completed" value={earnings.paidRides} accent="emerald" />
         <Stat
-          label="Đã thực nhận"
-          value={`${earnings.net.toLocaleString("vi-VN")} đ`}
+          label="Net earnings"
+          value={`${earnings.net.toLocaleString("en-US")} VND`}
           accent="emerald"
         />
         <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-          <h3 className="text-xs text-gray-400 uppercase tracking-wide">Đánh giá</h3>
+          <h3 className="text-xs text-gray-400 uppercase tracking-wide">Rating</h3>
           {ratingAvg === null ? (
-            <p className="text-sm text-gray-500 mt-2">Chưa có đánh giá</p>
+            <p className="text-sm text-gray-500 mt-2">No ratings yet</p>
           ) : (
             <div className="mt-2">
               <p className="text-2xl font-bold text-amber-400 flex items-center gap-1">
@@ -55,7 +55,7 @@ export default async function DriverDashboard() {
                 {ratingAvg.toFixed(1)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {ratings.length} đánh giá
+                {ratings.length} review{ratings.length === 1 ? "" : "s"}
               </p>
             </div>
           )}
@@ -64,7 +64,7 @@ export default async function DriverDashboard() {
 
       {ratings.length > 0 && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-4">Đánh giá gần đây</h2>
+          <h2 className="text-lg font-semibold mb-4">Recent reviews</h2>
           <ul className="space-y-3">
             {ratings.slice(0, 5).map((r, i) => (
               <li key={i} className="border-b border-white/5 last:border-b-0 pb-3 last:pb-0">
@@ -88,37 +88,37 @@ export default async function DriverDashboard() {
       )}
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Thu nhập của bạn</h2>
+        <h2 className="text-lg font-semibold mb-4">Your earnings</h2>
         <div className="grid md:grid-cols-3 gap-4 text-sm">
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <p className="text-gray-400 text-xs uppercase tracking-wide">
-              Tổng doanh thu
+              Gross
             </p>
             <p className="text-2xl font-bold text-blue-400 mt-1">
-              {earnings.gross.toLocaleString("vi-VN")} đ
+              {earnings.gross.toLocaleString("en-US")} VND
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {earnings.paidRides} chuyến đã thanh toán
+              {earnings.paidRides} paid ride(s)
             </p>
           </div>
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <p className="text-gray-400 text-xs uppercase tracking-wide">
-              Phí nền tảng ({(DRIVER_COMMISSION_RATE * 100).toFixed(0)}%)
+              Platform fee ({(DRIVER_COMMISSION_RATE * 100).toFixed(0)}%)
             </p>
             <p className="text-2xl font-bold text-amber-400 mt-1">
-              -{earnings.commission.toLocaleString("vi-VN")} đ
+              -{earnings.commission.toLocaleString("en-US")} VND
             </p>
-            <p className="text-xs text-gray-500 mt-1">Tự động khấu trừ</p>
+            <p className="text-xs text-gray-500 mt-1">Auto-deducted</p>
           </div>
           <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-400/30">
             <p className="text-emerald-200/80 text-xs uppercase tracking-wide">
-              Thực nhận
+              Net to you
             </p>
             <p className="text-2xl font-bold text-emerald-300 mt-1">
-              {earnings.net.toLocaleString("vi-VN")} đ
+              {earnings.net.toLocaleString("en-US")} VND
             </p>
             <p className="text-xs text-emerald-200/60 mt-1">
-              {(100 - DRIVER_COMMISSION_RATE * 100).toFixed(0)}% sau phí
+              {(100 - DRIVER_COMMISSION_RATE * 100).toFixed(0)}% after fees
             </p>
           </div>
         </div>
@@ -126,13 +126,13 @@ export default async function DriverDashboard() {
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-2">
-          Xin chào, {session!.user.name || "tài xế"}
+          Hello, {session!.user.name || "Driver"}
         </h2>
         <p className="text-gray-400 text-sm">
-          Vào &quot;Chuyến đang chờ&quot; để nhận chuyến mới. Mỗi chuyến hoàn
-          tất, bạn nhận{" "}
-          {(100 - DRIVER_COMMISSION_RATE * 100).toFixed(0)}% giá trị đơn — phần
-          còn lại là phí dịch vụ của nền tảng.
+          Head to &quot;Available rides&quot; to pick up new fares. For every
+          completed ride you receive{" "}
+          {(100 - DRIVER_COMMISSION_RATE * 100).toFixed(0)}% of the price —
+          the rest is the platform&apos;s service fee.
         </p>
       </div>
     </div>

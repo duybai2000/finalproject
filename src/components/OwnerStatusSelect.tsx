@@ -28,11 +28,11 @@ export default function OwnerStatusSelect({ id, initial, options }: Props) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Khong cap nhat duoc.");
+        setError(data.error || "Could not update.");
         setStatus(previous);
       }
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
       setStatus(previous);
     } finally {
       setSaving(false);

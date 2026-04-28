@@ -29,48 +29,48 @@ export default async function OwnerDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="Tổng xe" value={cars.length} accent="blue" />
-        <Stat label="Đang cho thuê" value={activeCars} accent="emerald" />
-        <Stat label="Đơn đang chờ" value={pending} accent="orange" />
+        <Stat label="Total cars" value={cars.length} accent="blue" />
+        <Stat label="Active" value={activeCars} accent="emerald" />
+        <Stat label="Pending bookings" value={pending} accent="orange" />
         <Stat
-          label="Đã thực nhận"
-          value={`${earnings.net.toLocaleString("vi-VN")} đ`}
+          label="Net earnings"
+          value={`${earnings.net.toLocaleString("en-US")} VND`}
           accent="emerald"
         />
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Tổng thu nhập</h2>
+        <h2 className="text-lg font-semibold mb-4">Total earnings</h2>
         <div className="grid md:grid-cols-3 gap-4 text-sm">
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <p className="text-gray-400 text-xs uppercase tracking-wide">
-              Tổng doanh thu
+              Gross revenue
             </p>
             <p className="text-2xl font-bold text-blue-400 mt-1">
-              {earnings.gross.toLocaleString("vi-VN")} đ
+              {earnings.gross.toLocaleString("en-US")} VND
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {earnings.paidBookings} đơn đã thanh toán
+              {earnings.paidBookings} paid bookings
             </p>
           </div>
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             <p className="text-gray-400 text-xs uppercase tracking-wide">
-              Phí nền tảng ({(PLATFORM_COMMISSION_RATE * 100).toFixed(0)}%)
+              Platform fee ({(PLATFORM_COMMISSION_RATE * 100).toFixed(0)}%)
             </p>
             <p className="text-2xl font-bold text-amber-400 mt-1">
-              -{earnings.commission.toLocaleString("vi-VN")} đ
+              -{earnings.commission.toLocaleString("en-US")} VND
             </p>
-            <p className="text-xs text-gray-500 mt-1">Tự động khấu trừ</p>
+            <p className="text-xs text-gray-500 mt-1">Auto-deducted</p>
           </div>
           <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-400/30">
             <p className="text-emerald-200/80 text-xs uppercase tracking-wide">
-              Thực nhận
+              Net to you
             </p>
             <p className="text-2xl font-bold text-emerald-300 mt-1">
-              {earnings.net.toLocaleString("vi-VN")} đ
+              {earnings.net.toLocaleString("en-US")} VND
             </p>
             <p className="text-xs text-emerald-200/60 mt-1">
-              {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% sau phí
+              {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% after fees
             </p>
           </div>
         </div>
@@ -78,19 +78,19 @@ export default async function OwnerDashboard() {
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-2">
-          Xin chào, {session!.user.name || "chủ xe"}
+          Hello, {session!.user.name || "Owner"}
         </h2>
         <p className="text-gray-400 text-sm">
-          Quản lý xe cho thuê và đơn thuê tại đây. Mỗi đơn được khách hàng
-          thanh toán, bạn nhận{" "}
-          {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% giá trị đơn —
-          phần còn lại là phí dịch vụ của nền tảng.
+          Manage your listed cars and incoming bookings here. For each paid
+          booking you receive{" "}
+          {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% of the total —
+          the rest is the platform&apos;s service fee.
         </p>
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-4">
-          Doanh thu thực nhận 7 ngày gần đây
+          Net earnings — last 7 days
         </h2>
         <div className="grid grid-cols-7 gap-2 items-end h-40">
           {daily.map((d) => {
@@ -103,7 +103,7 @@ export default async function OwnerDashboard() {
                     style={{
                       height: `${Math.max(heightPct, d.total > 0 ? 8 : 2)}%`,
                     }}
-                    title={`${d.total.toLocaleString("vi-VN")} đ`}
+                    title={`${d.total.toLocaleString("en-US")} VND`}
                   />
                 </div>
                 <p className="text-xs text-gray-400">{d.date.slice(5)}</p>
@@ -113,14 +113,14 @@ export default async function OwnerDashboard() {
         </div>
         {daily.every((d) => d.total === 0) && (
           <p className="text-sm text-gray-400 mt-3">
-            Chưa có đơn nào được thanh toán trong 7 ngày qua.
+            No paid bookings in the last 7 days.
           </p>
         )}
       </div>
 
       {bookings.length > 0 && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-4">5 đơn gần đây</h2>
+          <h2 className="text-lg font-semibold mb-4">Recent bookings</h2>
           <ul className="space-y-3">
             {bookings.slice(0, 5).map((b) => (
               <li
@@ -133,7 +133,7 @@ export default async function OwnerDashboard() {
                 </div>
                 <div className="text-right">
                   <p className="text-emerald-400 font-bold">
-                    {b.totalPrice.toLocaleString("vi-VN")} đ
+                    {b.totalPrice.toLocaleString("en-US")} VND
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {b.status}

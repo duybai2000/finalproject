@@ -8,11 +8,11 @@ export default async function AdminMessagesPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-blue-400">Tin nhắn liên hệ</h2>
+      <h2 className="text-2xl font-bold text-blue-400">Contact messages</h2>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl">
         {messages.length === 0 ? (
-          <p className="text-gray-400 p-6">Chưa có tin nhắn nào.</p>
+          <p className="text-gray-400 p-6">No messages yet.</p>
         ) : (
           <ul className="divide-y divide-white/5">
             {messages.map((m) => (
@@ -23,7 +23,7 @@ export default async function AdminMessagesPage() {
                     <p className="text-xs text-gray-400">{m.email}</p>
                   </div>
                   <p className="text-xs text-gray-500 whitespace-nowrap">
-                    {m.createdAt.toLocaleString("vi-VN")}
+                    {m.createdAt.toLocaleString("en-US")}
                   </p>
                 </div>
                 <p className="text-gray-300 mt-3 whitespace-pre-wrap">

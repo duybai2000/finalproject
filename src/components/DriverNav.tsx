@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/driver", label: "Tổng quan" },
-  { href: "/driver/available", label: "Chuyến đang chờ" },
-  { href: "/driver/my-rides", label: "Chuyến của tôi" },
+  { href: "/driver", label: "Overview" },
+  { href: "/driver/available", label: "Available rides" },
+  { href: "/driver/my-rides", label: "My rides" },
 ];
 
 export default function DriverNav() {

@@ -23,7 +23,7 @@ export default function ContactForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "Không thể gửi tin nhắn. Vui lòng thử lại.");
+        setError(data.error || "Could not send the message. Please try again.");
         return;
       }
       setSuccess(true);
@@ -31,7 +31,7 @@ export default function ContactForm() {
       setEmail("");
       setMessage("");
     } catch {
-      setError("Lỗi kết nối. Vui lòng thử lại.");
+      setError("Connection error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -40,16 +40,16 @@ export default function ContactForm() {
   if (success) {
     return (
       <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-2xl p-6 text-emerald-100">
-        <h3 className="text-lg font-semibold">Đã gửi tin nhắn!</h3>
+        <h3 className="text-lg font-semibold">Message sent!</h3>
         <p className="text-sm text-emerald-200/80 mt-1">
-          Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm nhất.
+          Thanks for reaching out. We&apos;ll get back to you soon.
         </p>
         <button
           type="button"
           onClick={() => setSuccess(false)}
           className="text-sm text-emerald-300 hover:text-emerald-200 mt-3 underline"
         >
-          Gửi tin nhắn khác
+          Send another message
         </button>
       </div>
     );
@@ -60,7 +60,7 @@ export default function ContactForm() {
       onSubmit={handleSubmit}
       className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4"
     >
-      <Field label="Họ và tên">
+      <Field label="Full name">
         <input
           type="text"
           value={name}
@@ -78,7 +78,7 @@ export default function ContactForm() {
           className={inputClass}
         />
       </Field>
-      <Field label="Nội dung">
+      <Field label="Message">
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -98,7 +98,7 @@ export default function ContactForm() {
         disabled={submitting}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-3 rounded-xl"
       >
-        {submitting ? "Đang gửi..." : "Gửi tin nhắn"}
+        {submitting ? "Sending..." : "Send message"}
       </button>
     </form>
   );

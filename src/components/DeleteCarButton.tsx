@@ -9,7 +9,7 @@ export default function DeleteCarButton({ id, name }: { id: number; name: string
   const router = useRouter();
 
   const handleDelete = async () => {
-    if (!window.confirm(`Xoa xe "${name}"?`)) return;
+    if (!window.confirm(`Delete car "${name}"?`)) return;
 
     setSubmitting(true);
     setError("");
@@ -17,12 +17,12 @@ export default function DeleteCarButton({ id, name }: { id: number; name: string
       const res = await fetch(`/api/admin/cars/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Khong xoa duoc.");
+        setError(data.error || "Could not delete.");
         return;
       }
       router.refresh();
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -36,7 +36,7 @@ export default function DeleteCarButton({ id, name }: { id: number; name: string
         disabled={submitting}
         className="text-xs text-red-300 hover:text-red-200 disabled:opacity-60"
       >
-        {submitting ? "Dang xoa..." : "Xoa"}
+        {submitting ? "Deleting..." : "Delete"}
       </button>
       {error && <span className="text-xs text-red-300">{error}</span>}
     </div>

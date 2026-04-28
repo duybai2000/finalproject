@@ -9,28 +9,28 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Không có quyền." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { type, id } = await params;
   if (type !== "ride" && type !== "rental") {
-    return NextResponse.json({ error: "Loại đơn không hợp lệ." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid booking type." }, { status: 400 });
   }
 
   if (type === "ride") {
     const ride = await prisma.rideBooking.findUnique({ where: { id } });
     if (!ride) {
-      return NextResponse.json({ error: "Không tìm thấy đơn." }, { status: 404 });
+      return NextResponse.json({ error: "Booking not found." }, { status: 404 });
     }
     if (!ride.paidAt) {
       return NextResponse.json(
-        { error: "Đơn này chưa thanh toán, không cần hoàn tiền." },
+        { error: "This booking has not been paid; nothing to refund." },
         { status: 400 }
       );
     }
     if (ride.refundedAt) {
       return NextResponse.json(
-        { error: "Đơn đã được hoàn tiền." },
+        { error: "This booking has already been refunded." },
         { status: 400 }
       );
     }
@@ -43,17 +43,17 @@ export async function POST(
 
   const rental = await prisma.rentalBooking.findUnique({ where: { id } });
   if (!rental) {
-    return NextResponse.json({ error: "Không tìm thấy đơn." }, { status: 404 });
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
   if (!rental.paidAt) {
     return NextResponse.json(
-      { error: "Đơn này chưa thanh toán, không cần hoàn tiền." },
+      { error: "This booking has not been paid; nothing to refund." },
       { status: 400 }
     );
   }
   if (rental.refundedAt) {
     return NextResponse.json(
-      { error: "Đơn đã được hoàn tiền." },
+      { error: "This booking has already been refunded." },
       { status: 400 }
     );
   }

@@ -31,7 +31,7 @@ export default async function PaymentPage({
         type="ride"
         id={ride.id}
         amount={ride.estimatedPrice}
-        label={`Thuê tài xế từ ${ride.pickup}`}
+        label={`Driver hire from ${ride.pickup}`}
       />
     );
   }
@@ -48,7 +48,7 @@ export default async function PaymentPage({
       type="rental"
       id={rental.id}
       amount={rental.totalPrice}
-      label={`Thue xe: ${rental.carName}`}
+      label={`Car rental: ${rental.carName}`}
     />
   );
 }

@@ -11,26 +11,26 @@ export default function Footer() {
             Ride &amp; Rent
           </p>
           <p className="text-gray-400 mt-2 max-w-xs">
-            Nền tảng đặt tài xế và thuê xe tự lái cho người Việt.
+            Driver-hire and self-drive car rental platform for Vietnam.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Link href="/about" className="text-gray-400 hover:text-white">
-            Về chúng tôi
+            About
           </Link>
           <Link href="/contact" className="text-gray-400 hover:text-white">
-            Liên hệ
+            Contact
           </Link>
           <Link href="/login" className="text-gray-400 hover:text-white">
-            Đăng nhập
+            Sign In
           </Link>
           <Link href="/register" className="text-gray-400 hover:text-white">
-            Đăng ký
+            Sign Up
           </Link>
         </div>
         <div className="text-gray-500 md:text-right">
           <p>&copy; {year} Ride &amp; Rent</p>
-          <p className="text-xs mt-1">Mọi quyền được bảo lưu</p>
+          <p className="text-xs mt-1">All rights reserved</p>
         </div>
       </div>
     </footer>

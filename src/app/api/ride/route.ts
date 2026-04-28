@@ -6,10 +6,10 @@ import { authOptions } from "@/lib/auth";
 import { calculateDriverHirePrice } from "@/lib/pricing";
 
 const RideSchema = z.object({
-  pickup: z.string().trim().min(1, "Vui lòng nhập điểm đón.").max(200),
+  pickup: z.string().trim().min(1, "Please enter a pickup address.").max(200),
   dropoff: z.string().trim().max(200).optional(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
   pickupLat: z.number().min(-90).max(90).optional(),
   pickupLng: z.number().min(-180).max(180).optional(),
   pickupAccuracy: z.number().nonnegative().nullable().optional(),
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Vui lòng đăng nhập để đặt xe." },
+        { error: "Please sign in to book a ride." },
         { status: 401 }
       );
     }
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     });
     if (!userExists) {
       return NextResponse.json(
-        { error: "Phiên đã hết hạn. Vui lòng đăng nhập lại." },
+        { error: "Session expired. Please sign in again." },
         { status: 401 }
       );
     }
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
+        { error: parsed.error.issues[0]?.message || "Invalid input." },
         { status: 400 }
       );
     }
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     if (!pricing) {
       return NextResponse.json(
-        { error: "Khoảng thời gian thuê không hợp lệ." },
+        { error: "Invalid rental period." },
         { status: 400 }
       );
     }
@@ -77,14 +77,14 @@ export async function POST(request: Request) {
         pickupAccuracy: pickupAccuracy ?? null,
         locationCapturedAt: pickupLat !== undefined ? new Date() : null,
         estimatedPrice: pricing.total,
-        distance: `${startDate} đến ${endDate}`,
-        time: `${pricing.totalDays} ngày`,
+        distance: `${startDate} to ${endDate}`,
+        time: `${pricing.totalDays} day${pricing.totalDays === 1 ? "" : "s"}`,
         userId: session.user.id,
       },
     });
 
     return NextResponse.json({ success: true, id: savedRide.id });
   } catch {
-    return NextResponse.json({ error: "Lỗi máy chủ." }, { status: 500 });
+    return NextResponse.json({ error: "Server error." }, { status: 500 });
   }
 }

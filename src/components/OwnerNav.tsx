@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/owner", label: "Tong quan" },
-  { href: "/owner/cars", label: "Xe cua toi" },
-  { href: "/owner/bookings", label: "Don thue" },
+  { href: "/owner", label: "Overview" },
+  { href: "/owner/cars", label: "My cars" },
+  { href: "/owner/bookings", label: "Bookings" },
 ];
 
 export default function OwnerNav() {

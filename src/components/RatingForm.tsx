@@ -33,13 +33,13 @@ export default function RatingForm({ type, id }: Props) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Không gửi được đánh giá.");
+        setError(data.error || "Could not submit your rating.");
         return;
       }
       setOpen(false);
       router.refresh();
     } catch {
-      setError("Lỗi kết nối.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -52,7 +52,7 @@ export default function RatingForm({ type, id }: Props) {
         onClick={() => setOpen(true)}
         className="text-xs text-amber-300 hover:text-amber-200 underline-offset-2 hover:underline"
       >
-        Đánh giá
+        Leave a rating
       </button>
     );
   }
@@ -87,7 +87,7 @@ export default function RatingForm({ type, id }: Props) {
         onChange={(e) => setComment(e.target.value)}
         rows={2}
         maxLength={500}
-        placeholder="Cảm nhận của bạn (tùy chọn)..."
+        placeholder="Tell us how it went (optional)..."
         className="w-full bg-slate-900/50 border border-white/10 text-white text-xs rounded-lg px-3 py-2 resize-none"
       />
       {error && <p className="text-xs text-red-300 text-center">{error}</p>}
@@ -97,14 +97,14 @@ export default function RatingForm({ type, id }: Props) {
           disabled={submitting}
           className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-xs font-semibold py-1.5 rounded-lg"
         >
-          {submitting ? "Đang gửi..." : "Gửi"}
+          {submitting ? "Sending..." : "Submit"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
         >
-          Hủy
+          Cancel
         </button>
       </div>
     </form>

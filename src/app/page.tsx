@@ -41,10 +41,10 @@ export default function Home() {
               <LayoutDashboard className="w-5 h-5 text-emerald-300" />
               <div>
                 <p className="text-emerald-100 font-semibold">
-                  Bạn đang đăng nhập với vai trò Admin
+                  You are signed in as Admin
                 </p>
                 <p className="text-emerald-200/70 text-sm">
-                  Vào trang quản trị để xem dashboard, quản lý xe và người dùng.
+                  Open the admin dashboard to manage cars, users, and bookings.
                 </p>
               </div>
             </div>
@@ -52,7 +52,7 @@ export default function Home() {
               href="/admin"
               className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
             >
-              Mở Admin
+              Open Admin
             </Link>
           </motion.div>
         )}
@@ -67,10 +67,10 @@ export default function Home() {
               <LayoutDashboard className="w-5 h-5 text-amber-300" />
               <div>
                 <p className="text-amber-100 font-semibold">
-                  Bạn đang đăng nhập với vai trò Chủ xe
+                  You are signed in as Owner
                 </p>
                 <p className="text-amber-200/70 text-sm">
-                  Quản lý xe cho thuê và đơn thuê trong bảng điều khiển chủ xe.
+                  Manage your listed cars and incoming bookings from the owner dashboard.
                 </p>
               </div>
             </div>
@@ -78,7 +78,7 @@ export default function Home() {
               href="/owner"
               className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
             >
-              Mở bảng chủ xe
+              Open Owner Dashboard
             </Link>
           </motion.div>
         )}
@@ -93,10 +93,10 @@ export default function Home() {
               <LayoutDashboard className="w-5 h-5 text-purple-300" />
               <div>
                 <p className="text-purple-100 font-semibold">
-                  Bạn đang đăng nhập với vai trò Tài xế
+                  You are signed in as Driver
                 </p>
                 <p className="text-purple-200/70 text-sm">
-                  Nhận chuyến từ khách hàng và theo dõi thu nhập của bạn.
+                  Pick up rides from customers and track your earnings.
                 </p>
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function Home() {
               href="/driver"
               className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
             >
-              Mở bảng tài xế
+              Open Driver Dashboard
             </Link>
           </motion.div>
         )}
@@ -115,10 +115,10 @@ export default function Home() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 tracking-tight mb-4">
-            Di Chuyển Thông Minh
+            Smart Mobility
           </h1>
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            Giải pháp di chuyển toàn diện. Lựa chọn đặt xe đi ngay hoặc thuê xe tự lái với dàn xe chất lượng cao.
+            All-in-one mobility platform. Hire a driver by the day or rent a self-drive car from a curated fleet.
           </p>
         </motion.div>
 
@@ -129,14 +129,14 @@ export default function Home() {
             className={`relative z-10 flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === "ride" ? "text-white" : "text-gray-400 hover:text-white"}`}
           >
             <Navigation className="w-5 h-5" />
-            Gọi Tài Xế
+            Hire a Driver
           </button>
           <button
             onClick={() => setActiveTab("rent")}
             className={`relative z-10 flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === "rent" ? "text-white" : "text-gray-400 hover:text-white"}`}
           >
             <Car className="w-5 h-5" />
-            Thuê Xe Tự Lái
+            Rent a Car
           </button>
 
           {/* Active indicator */}

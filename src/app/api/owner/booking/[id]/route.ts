@@ -13,26 +13,26 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "OWNER") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
 
   const rental = await prisma.rentalBooking.findUnique({ where: { id } });
   if (!rental) {
-    return NextResponse.json({ error: "Khong tim thay don." }, { status: 404 });
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
 
   // verify the car belongs to this owner
   const car = await prisma.car.findUnique({ where: { id: rental.carId } });
   if (!car || car.ownerId !== session.user.id) {
-    return NextResponse.json({ error: "Don nay khong thuoc xe cua ban." }, { status: 404 });
+    return NextResponse.json({ error: "This booking is not on one of your cars." }, { status: 404 });
   }
 
   const body = await request.json().catch(() => null);
   const parsed = StatusSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Trang thai khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid status." }, { status: 400 });
   }
 
   await prisma.rentalBooking.update({

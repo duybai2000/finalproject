@@ -7,11 +7,11 @@ export default function ContactPage() {
       <div className="max-w-5xl mx-auto space-y-8">
         <header className="text-center space-y-3">
           <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
-            Liên hệ
+            Contact us
           </h1>
           <p className="text-gray-300 max-w-xl mx-auto">
-            Có câu hỏi về dịch vụ, muốn hợp tác, hoặc cần hỗ trợ về tài khoản?
-            Hãy gửi tin nhắn cho chúng tôi.
+            Questions about our service, partnership ideas, or account help?
+            Send us a message and we&apos;ll get back to you.
           </p>
         </header>
 
@@ -25,18 +25,18 @@ export default function ContactPage() {
             <ContactInfo
               icon={<Phone className="w-5 h-5 text-emerald-400" />}
               label="Hotline"
-              value="1900 xxxx (8:00 - 22:00)"
+              value="1900 xxxx (8:00 AM - 10:00 PM)"
             />
             <ContactInfo
               icon={<MapPin className="w-5 h-5 text-amber-400" />}
-              label="Văn phòng"
-              value="TP. Hồ Chí Minh, Việt Nam"
+              label="Office"
+              value="Ho Chi Minh City, Vietnam"
             />
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-gray-400 leading-relaxed">
-              <p className="text-gray-300 font-semibold mb-2">Thời gian phản hồi</p>
+              <p className="text-gray-300 font-semibold mb-2">Response time</p>
               <p>
-                Chúng tôi cố gắng phản hồi mọi yêu cầu trong vòng 24 giờ làm
-                việc. Với các vấn đề khẩn cấp, vui lòng gọi trực tiếp hotline.
+                We try to reply to every message within 24 business hours. For urgent
+                issues please call the hotline directly.
               </p>
             </div>
           </div>

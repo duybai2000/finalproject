@@ -17,13 +17,13 @@ export default function AcceptRideButton({ id }: { id: string }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Không thể nhận chuyến.");
+        setError(data.error || "Could not accept this ride.");
         return;
       }
       router.push("/driver/my-rides");
       router.refresh();
     } catch {
-      setError("Lỗi kết nối.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -37,7 +37,7 @@ export default function AcceptRideButton({ id }: { id: string }) {
         disabled={submitting}
         className="bg-purple-500 hover:bg-purple-600 disabled:opacity-60 text-white text-sm font-semibold px-3 py-1.5 rounded-lg"
       >
-        {submitting ? "Đang nhận..." : "Nhận chuyến"}
+        {submitting ? "Accepting..." : "Accept"}
       </button>
       {error && <span className="text-xs text-red-300">{error}</span>}
     </div>

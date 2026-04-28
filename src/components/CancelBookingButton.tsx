@@ -14,7 +14,7 @@ export default function CancelBookingButton({ type, id }: Props) {
   const router = useRouter();
 
   const handleCancel = async () => {
-    if (!window.confirm("Ban co chac muon huy don nay?")) return;
+    if (!window.confirm("Cancel this booking?")) return;
 
     setSubmitting(true);
     setError("");
@@ -26,13 +26,13 @@ export default function CancelBookingButton({ type, id }: Props) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Khong the huy don.");
+        setError(data.error || "Could not cancel.");
         return;
       }
 
       router.refresh();
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -46,7 +46,7 @@ export default function CancelBookingButton({ type, id }: Props) {
         disabled={submitting}
         className="text-xs text-red-300 hover:text-red-200 disabled:opacity-60 underline-offset-2 hover:underline"
       >
-        {submitting ? "Dang huy..." : "Huy don"}
+        {submitting ? "Cancelling..." : "Cancel booking"}
       </button>
       {error && <span className="text-xs text-red-300">{error}</span>}
     </div>

@@ -29,7 +29,7 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
     if (phone !== initialPhone) body.phone = phone;
     if (newPassword) {
       if (!currentPassword) {
-        setError("Cần nhập mật khẩu hiện tại để đổi mật khẩu.");
+        setError("Enter your current password to change it.");
         setSubmitting(false);
         return;
       }
@@ -38,7 +38,7 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
     }
 
     if (Object.keys(body).length === 0) {
-      setError("Không có thay đổi nào.");
+      setError("Nothing to change.");
       setSubmitting(false);
       return;
     }
@@ -51,15 +51,15 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "Không cập nhật được.");
+        setError(data.error || "Could not update.");
         return;
       }
-      setSuccess("Đã cập nhật thông tin.");
+      setSuccess("Profile updated.");
       setCurrentPassword("");
       setNewPassword("");
       router.refresh();
     } catch {
-      setError("Lỗi kết nối.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -70,9 +70,9 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
       onSubmit={handleSubmit}
       className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4"
     >
-      <h3 className="text-lg font-semibold">Chỉnh sửa thông tin</h3>
+      <h3 className="text-lg font-semibold">Edit profile</h3>
 
-      <Field label="Họ và tên">
+      <Field label="Full name">
         <input
           type="text"
           value={name}
@@ -82,21 +82,21 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
         />
       </Field>
 
-      <Field label="Số điện thoại">
+      <Field label="Phone number">
         <input
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="VD: 0901234567"
+          placeholder="e.g. 0901234567"
           className={inputClass}
         />
       </Field>
 
       <div className="border-t border-white/10 pt-4 space-y-3">
         <p className="text-sm text-gray-400">
-          Đổi mật khẩu (để trống nếu không đổi)
+          Change password (leave blank to keep current)
         </p>
-        <Field label="Mật khẩu hiện tại">
+        <Field label="Current password">
           <input
             type="password"
             value={currentPassword}
@@ -104,7 +104,7 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
             className={inputClass}
           />
         </Field>
-        <Field label="Mật khẩu mới">
+        <Field label="New password">
           <input
             type="password"
             value={newPassword}
@@ -131,7 +131,7 @@ export default function EditProfileForm({ initialName, initialPhone }: Props) {
         disabled={submitting}
         className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-2 px-5 rounded-xl"
       >
-        {submitting ? "Đang lưu..." : "Cập nhật"}
+        {submitting ? "Saving..." : "Save changes"}
       </button>
     </form>
   );

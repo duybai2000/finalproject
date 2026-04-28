@@ -17,7 +17,7 @@ export default async function OwnerLayout({
   return (
     <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Bang dieu khien chu xe</h1>
+        <h1 className="text-3xl font-bold mb-6">Owner Dashboard</h1>
         <OwnerNav />
         <div className="mt-6">{children}</div>
       </div>

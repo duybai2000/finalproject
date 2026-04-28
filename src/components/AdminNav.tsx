@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/admin", label: "Tổng quan" },
-  { href: "/admin/cars", label: "Quản lý xe" },
-  { href: "/admin/users", label: "Người dùng" },
-  { href: "/admin/messages", label: "Tin nhắn" },
+  { href: "/admin", label: "Overview" },
+  { href: "/admin/cars", label: "Cars" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/messages", label: "Messages" },
 ];
 
 export default function AdminNav() {

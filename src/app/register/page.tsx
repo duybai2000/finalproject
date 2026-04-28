@@ -36,12 +36,12 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Đăng ký thất bại");
+        setError(data.error || "Registration failed");
         return;
       }
       router.push("/login");
     } catch {
-      setError("Đã xảy ra lỗi hệ thống");
+      setError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -54,14 +54,14 @@ export default function RegisterPage() {
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full bg-slate-800/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/10"
       >
-        <h2 className="text-3xl font-bold text-center text-white mb-2">Đăng Ký Tài Khoản</h2>
-        <p className="text-gray-400 text-center mb-8">Trở thành thành viên của Ride & Rent</p>
+        <h2 className="text-3xl font-bold text-center text-white mb-2">Create Account</h2>
+        <p className="text-gray-400 text-center mb-8">Join Ride &amp; Rent</p>
 
         {error && <div className="bg-red-500/20 text-red-300 p-3 rounded-lg mb-4 text-center">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">Bạn đăng ký với vai trò</label>
+            <label className="block text-gray-300 text-sm font-medium mb-2">I am signing up as</label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
@@ -72,8 +72,8 @@ export default function RegisterPage() {
                     : "bg-slate-900/50 border-white/10 text-gray-400 hover:border-white/30"
                 }`}
               >
-                <div>Khách thuê</div>
-                <div className="text-xs font-normal mt-1 opacity-70">Đặt tài xế / thuê xe</div>
+                <div>Customer</div>
+                <div className="text-xs font-normal mt-1 opacity-70">Hire drivers / rent cars</div>
               </button>
               <button
                 type="button"
@@ -84,8 +84,8 @@ export default function RegisterPage() {
                     : "bg-slate-900/50 border-white/10 text-gray-400 hover:border-white/30"
                 }`}
               >
-                <div>Chủ xe</div>
-                <div className="text-xs font-normal mt-1 opacity-70">Cho thuê xe của tôi</div>
+                <div>Car owner</div>
+                <div className="text-xs font-normal mt-1 opacity-70">List my own car</div>
               </button>
               <button
                 type="button"
@@ -96,14 +96,14 @@ export default function RegisterPage() {
                     : "bg-slate-900/50 border-white/10 text-gray-400 hover:border-white/30"
                 }`}
               >
-                <div>Tài xế</div>
-                <div className="text-xs font-normal mt-1 opacity-70">Nhận chuyến từ khách</div>
+                <div>Driver</div>
+                <div className="text-xs font-normal mt-1 opacity-70">Pick up rides</div>
               </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-gray-300 text-sm font-medium mb-1">Họ và Tên</label>
+            <label className="block text-gray-300 text-sm font-medium mb-1">Full name</label>
             <input
               type="text"
               value={name}
@@ -124,19 +124,19 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="block text-gray-300 text-sm font-medium mb-1">
-              Số điện thoại
+              Phone number
             </label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="VD: 0901234567"
+              placeholder="e.g. 0901234567"
               className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               pattern="[0-9+\s().-]{8,20}"
             />
           </div>
           <div>
-            <label className="block text-gray-300 text-sm font-medium mb-1">Mật khẩu</label>
+            <label className="block text-gray-300 text-sm font-medium mb-1">Password</label>
             <input
               type="password"
               value={password}
@@ -151,12 +151,12 @@ export default function RegisterPage() {
             disabled={submitting}
             className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition mt-4 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
           >
-            {submitting ? "Đang xử lý..." : "Hoàn Tất Đăng Ký"}
+            {submitting ? "Submitting..." : "Create Account"}
           </button>
         </form>
 
         <p className="text-center text-gray-400 mt-6">
-          Đã có tài khoản? <Link href="/login" className="text-blue-400 hover:underline">Đăng nhập</Link>
+          Already have an account? <Link href="/login" className="text-blue-400 hover:underline">Sign in</Link>
         </p>
       </motion.div>
     </div>

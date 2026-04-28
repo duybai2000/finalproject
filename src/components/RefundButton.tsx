@@ -14,7 +14,7 @@ export default function RefundButton({ type, id }: Props) {
   const router = useRouter();
 
   const handleRefund = async () => {
-    if (!window.confirm("Hủy đơn này và hoàn tiền cho khách hàng?")) return;
+    if (!window.confirm("Cancel this booking and refund the customer?")) return;
     setSubmitting(true);
     setError("");
     try {
@@ -23,12 +23,12 @@ export default function RefundButton({ type, id }: Props) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Không hoàn tiền được.");
+        setError(data.error || "Could not process refund.");
         return;
       }
       router.refresh();
     } catch {
-      setError("Lỗi kết nối.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -42,7 +42,7 @@ export default function RefundButton({ type, id }: Props) {
         disabled={submitting}
         className="bg-red-500/80 hover:bg-red-500 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 rounded-xl"
       >
-        {submitting ? "Đang xử lý..." : "Hủy & hoàn tiền"}
+        {submitting ? "Processing..." : "Cancel & refund"}
       </button>
       {error && <span className="text-xs text-red-300">{error}</span>}
     </div>

@@ -11,24 +11,24 @@ const ProfileSchema = z
     phone: z
       .string()
       .trim()
-      .regex(/^[0-9+\s().-]{8,20}$/, "Số điện thoại không hợp lệ.")
+      .regex(/^[0-9+\s().-]{8,20}$/, "Invalid phone number.")
       .optional()
       .or(z.literal("")),
     currentPassword: z.string().min(1).optional(),
-    newPassword: z.string().min(6, "Mật khẩu mới tối thiểu 6 ký tự.").max(128).optional(),
+    newPassword: z.string().min(6, "New password must be at least 6 characters.").max(128).optional(),
   })
   .refine(
     (data) =>
       (data.newPassword === undefined && data.currentPassword === undefined) ||
       (data.newPassword !== undefined && data.currentPassword !== undefined),
-    { message: "Cần nhập cả mật khẩu hiện tại và mật khẩu mới." }
+    { message: "Both current password and new password are required." }
   );
 
 export async function PATCH(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Vui lòng đăng nhập." },
+      { error: "Please sign in." },
       { status: 401 }
     );
   }
@@ -37,7 +37,7 @@ export async function PATCH(request: Request) {
   const parsed = ProfileSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
+      { error: parsed.error.issues[0]?.message || "Invalid input." },
       { status: 400 }
     );
   }
@@ -49,7 +49,7 @@ export async function PATCH(request: Request) {
   });
   if (!user) {
     return NextResponse.json(
-      { error: "Không tìm thấy tài khoản." },
+      { error: "Account not found." },
       { status: 404 }
     );
   }
@@ -61,14 +61,14 @@ export async function PATCH(request: Request) {
   if (newPassword && currentPassword) {
     if (!user.password) {
       return NextResponse.json(
-        { error: "Tài khoản chưa có mật khẩu." },
+        { error: "Account has no password set." },
         { status: 400 }
       );
     }
     const matches = await bcrypt.compare(currentPassword, user.password);
     if (!matches) {
       return NextResponse.json(
-        { error: "Mật khẩu hiện tại không đúng." },
+        { error: "Current password is incorrect." },
         { status: 400 }
       );
     }
@@ -77,7 +77,7 @@ export async function PATCH(request: Request) {
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json(
-      { error: "Không có thay đổi nào." },
+      { error: "Nothing to change." },
       { status: 400 }
     );
   }

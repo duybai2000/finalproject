@@ -8,30 +8,30 @@ export default async function AdminCarsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-blue-400">Danh sach xe</h2>
+        <h2 className="text-2xl font-bold text-blue-400">Cars</h2>
         <Link
           href="/admin/cars/new"
           className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl"
         >
-          + Them xe moi
+          + Add new car
         </Link>
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
         {cars.length === 0 ? (
-          <p className="text-gray-400 p-6">Chua co xe nao.</p>
+          <p className="text-gray-400 p-6">No cars yet.</p>
         ) : (
           <table className="w-full text-sm">
             <thead className="text-gray-400 border-b border-white/10">
               <tr>
-                <th className="text-left p-4">Anh</th>
-                <th className="text-left p-4">Ten</th>
-                <th className="text-left p-4">Loai</th>
-                <th className="text-center p-4">Cho</th>
-                <th className="text-center p-4">So</th>
-                <th className="text-right p-4">Don gia</th>
-                <th className="text-center p-4">Trang thai</th>
-                <th className="text-right p-4">Hanh dong</th>
+                <th className="text-left p-4">Photo</th>
+                <th className="text-left p-4">Name</th>
+                <th className="text-left p-4">Type</th>
+                <th className="text-center p-4">Seats</th>
+                <th className="text-center p-4">Trans.</th>
+                <th className="text-right p-4">Daily rate</th>
+                <th className="text-center p-4">Status</th>
+                <th className="text-right p-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -48,18 +48,18 @@ export default async function AdminCarsPage() {
                   <td className="p-4 font-medium">{car.name}</td>
                   <td className="p-4 text-gray-300">{car.type}</td>
                   <td className="p-4 text-center">{car.seats}</td>
-                  <td className="p-4 text-center">{car.auto ? "TD" : "Tay"}</td>
+                  <td className="p-4 text-center">{car.auto ? "Auto" : "Manual"}</td>
                   <td className="p-4 text-right text-emerald-400 font-bold">
-                    {car.dailyRate.toLocaleString("vi-VN")} d
+                    {car.dailyRate.toLocaleString("en-US")} VND
                   </td>
                   <td className="p-4 text-center">
                     {car.active ? (
                       <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
-                        Hoat dong
+                        Active
                       </span>
                     ) : (
                       <span className="text-xs bg-gray-500/20 text-gray-300 px-2 py-1 rounded">
-                        Tat
+                        Off
                       </span>
                     )}
                   </td>
@@ -69,7 +69,7 @@ export default async function AdminCarsPage() {
                         href={`/admin/cars/${car.id}/edit`}
                         className="text-xs text-blue-300 hover:text-blue-200"
                       >
-                        Sua
+                        Edit
                       </Link>
                       <DeleteCarButton id={car.id} name={car.name} />
                     </div>

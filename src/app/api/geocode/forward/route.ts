@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
     if (!res.ok) {
       return NextResponse.json(
-        { error: "Không tra cứu được địa chỉ." },
+        { error: "Could not look up the address." },
         { status: 502 }
       );
     }
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     });
   } catch {
     return NextResponse.json(
-      { error: "Lỗi kết nối tới dịch vụ địa chỉ." },
+      { error: "Address service error." },
       { status: 502 }
     );
   }

@@ -13,14 +13,14 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "DRIVER") {
-    return NextResponse.json({ error: "Không có quyền." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
   const ride = await prisma.rideBooking.findUnique({ where: { id } });
   if (!ride || ride.driverId !== session.user.id) {
     return NextResponse.json(
-      { error: "Chuyến này không thuộc bạn." },
+      { error: "This ride is not assigned to you." },
       { status: 404 }
     );
   }
@@ -28,7 +28,7 @@ export async function PATCH(
   const body = await request.json().catch(() => null);
   const parsed = StatusSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Trạng thái không hợp lệ." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid status." }, { status: 400 });
   }
 
   // Drivers can only flow ACCEPTED -> COMPLETED or back to PENDING (release).

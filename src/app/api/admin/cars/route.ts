@@ -18,7 +18,7 @@ const CarCreateSchema = z.object({
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "Du lieu khong hop le." },
+      { error: parsed.error.issues[0]?.message || "Invalid input." },
       { status: 400 }
     );
   }

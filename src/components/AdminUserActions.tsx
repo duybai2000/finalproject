@@ -29,13 +29,13 @@ export default function AdminUserActions({ id, currentRole, isSelf }: Props) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Khong cap nhat duoc.");
+        setError(data.error || "Could not update.");
         setRole(previous);
       } else {
         router.refresh();
       }
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
       setRole(previous);
     } finally {
       setBusy(false);
@@ -43,19 +43,19 @@ export default function AdminUserActions({ id, currentRole, isSelf }: Props) {
   };
 
   const deleteUser = async () => {
-    if (!window.confirm("Xoa nguoi dung nay?")) return;
+    if (!window.confirm("Delete this user?")) return;
     setBusy(true);
     setError("");
     try {
       const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Khong xoa duoc.");
+        setError(data.error || "Could not delete.");
         return;
       }
       router.refresh();
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
     } finally {
       setBusy(false);
     }
@@ -69,7 +69,7 @@ export default function AdminUserActions({ id, currentRole, isSelf }: Props) {
           disabled={busy || isSelf}
           onChange={(e) => changeRole(e.target.value)}
           className="bg-slate-800 border border-white/20 text-white text-xs px-2 py-1 rounded disabled:opacity-50"
-          title={isSelf ? "Khong the doi quyen cua chinh minh" : ""}
+          title={isSelf ? "Cannot change your own role" : ""}
         >
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
@@ -79,9 +79,9 @@ export default function AdminUserActions({ id, currentRole, isSelf }: Props) {
           onClick={deleteUser}
           disabled={busy || isSelf}
           className="text-xs text-red-300 hover:text-red-200 disabled:opacity-50"
-          title={isSelf ? "Khong the xoa chinh minh" : ""}
+          title={isSelf ? "Cannot delete your own account" : ""}
         >
-          Xoa
+          Delete
         </button>
       </div>
       {error && <span className="text-xs text-red-300">{error}</span>}

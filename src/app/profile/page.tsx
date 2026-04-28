@@ -58,14 +58,14 @@ export default async function ProfilePage({
   return (
     <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Trang Ca Nhan & Lich Su</h1>
+        <h1 className="text-3xl font-bold mb-8">My Profile &amp; History</h1>
 
         <div className="bg-white/5 border border-white/10 p-6 rounded-2xl mb-6">
-          <h2 className="text-xl font-bold mb-2">Thông tin tài khoản</h2>
-          <p className="text-gray-400">Tên: {user.name || "Chưa cập nhật"}</p>
-          <p className="text-gray-400">Email: {user.email || "Không có"}</p>
+          <h2 className="text-xl font-bold mb-2">Account info</h2>
+          <p className="text-gray-400">Name: {user.name || "Not set"}</p>
+          <p className="text-gray-400">Email: {user.email || "—"}</p>
           <p className="text-gray-400">
-            SĐT: {dbUser?.phone || "Chưa cập nhật"}
+            Phone: {dbUser?.phone || "Not set"}
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default async function ProfilePage({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h2 className="text-2xl font-bold text-blue-400">Cuốc Xe Đã Đặt</h2>
+          <h2 className="text-2xl font-bold text-blue-400">Rides booked</h2>
           <StatusFilter
             paramName="rideStatus"
             options={RIDE_STATUSES.map((s) => ({ value: s, label: s }))}
@@ -85,7 +85,7 @@ export default async function ProfilePage({
         </div>
         <div className="space-y-4 mb-8">
           {rides.length === 0 ? (
-            <p className="text-gray-400">Ban chua dat cuoc xe nao.</p>
+            <p className="text-gray-400">No rides booked yet.</p>
           ) : (
             rides.map((ride) => (
               <div
@@ -94,7 +94,7 @@ export default async function ProfilePage({
               >
                 <div className="min-w-0">
                   <p className="font-semibold break-words">
-                    Điểm đón: {ride.pickup}
+                    Pickup: {ride.pickup}
                   </p>
                   <p className="text-sm text-gray-400">
                     {ride.distance} - {ride.time}
@@ -105,7 +105,7 @@ export default async function ProfilePage({
                         GPS: {ride.pickupLat.toFixed(5)}, {ride.pickupLng.toFixed(5)}
                       </p>
                       {ride.pickupAccuracy !== null && (
-                        <p>Sai so: ~{Math.round(ride.pickupAccuracy)} m</p>
+                        <p>Accuracy: ~{Math.round(ride.pickupAccuracy)} m</p>
                       )}
                       <a
                         href={buildOpenStreetMapUrl(ride.pickupLat, ride.pickupLng)}
@@ -113,21 +113,21 @@ export default async function ProfilePage({
                         rel="noreferrer"
                         className="inline-flex text-blue-300 hover:text-blue-200"
                       >
-                        Xem tren ban do
+                        View on map
                       </a>
                     </div>
                   )}
                 </div>
                 <div className="text-right shrink-0 space-y-1 min-w-[180px]">
                   <p className="text-emerald-400 font-bold">
-                    {ride.estimatedPrice.toLocaleString("vi-VN")} đ
+                    {ride.estimatedPrice.toLocaleString("en-US")} VND
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {ride.status}
                   </span>
                   {ride.driver && (
                     <p className="text-xs text-gray-400">
-                      Tài xế: {ride.driver.name || "—"}
+                      Driver: {ride.driver.name || "—"}
                       {ride.driver.phone && ` (${ride.driver.phone})`}
                     </p>
                   )}
@@ -145,7 +145,7 @@ export default async function ProfilePage({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h2 className="text-2xl font-bold text-orange-400">Lịch Sử Thuê Xe</h2>
+          <h2 className="text-2xl font-bold text-orange-400">Car rentals</h2>
           <StatusFilter
             paramName="rentalStatus"
             options={RENTAL_STATUSES.map((s) => ({ value: s, label: s }))}
@@ -153,7 +153,7 @@ export default async function ProfilePage({
         </div>
         <div className="space-y-4">
           {rentals.length === 0 ? (
-            <p className="text-gray-400">Ban chua thue chiec xe nao.</p>
+            <p className="text-gray-400">No car rentals yet.</p>
           ) : (
             rentals.map((rental) => (
               <div
@@ -166,7 +166,7 @@ export default async function ProfilePage({
                 </div>
                 <div className="text-right shrink-0 space-y-1 min-w-[180px]">
                   <p className="text-emerald-400 font-bold">
-                    {rental.totalPrice.toLocaleString("vi-VN")} đ
+                    {rental.totalPrice.toLocaleString("en-US")} VND
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {rental.status}

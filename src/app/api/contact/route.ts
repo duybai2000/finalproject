@@ -3,9 +3,9 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 
 const ContactSchema = z.object({
-  name: z.string().trim().min(1, "Vui lòng nhập họ và tên.").max(100),
-  email: z.string().trim().toLowerCase().email("Email không hợp lệ.").max(254),
-  message: z.string().trim().min(5, "Tin nhắn quá ngắn.").max(2000),
+  name: z.string().trim().min(1, "Please enter your full name.").max(100),
+  email: z.string().trim().toLowerCase().email("Invalid email.").max(254),
+  message: z.string().trim().min(5, "Message is too short.").max(2000),
 });
 
 export async function POST(request: Request) {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
+        { error: parsed.error.issues[0]?.message || "Invalid input." },
         { status: 400 }
       );
     }
@@ -24,6 +24,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Lỗi máy chủ." }, { status: 500 });
+    return NextResponse.json({ error: "Server error." }, { status: 500 });
   }
 }

@@ -59,10 +59,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // Empty token => signed-out session. Strip user so client treats as such.
       if (!token.id) {
-        return { ...session, user: undefined } as typeof session;
+        return { ...session, user: undefined } as unknown as typeof session;
       }
       if (session.user) {
-        session.user.role = token.role;
+        session.user.role = token.role ?? "USER";
         session.user.id = token.id;
       }
       return session;

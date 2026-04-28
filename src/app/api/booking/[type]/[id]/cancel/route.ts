@@ -11,7 +11,7 @@ export async function POST(
 
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Vui long dang nhap." },
+      { error: "Please sign in." },
       { status: 401 }
     );
   }
@@ -19,7 +19,7 @@ export async function POST(
   const { type, id } = await params;
 
   if (type !== "ride" && type !== "rental") {
-    return NextResponse.json({ error: "Loai don khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid booking type." }, { status: 400 });
   }
 
   const userId = session.user.id;
@@ -27,11 +27,11 @@ export async function POST(
   if (type === "ride") {
     const ride = await prisma.rideBooking.findUnique({ where: { id } });
     if (!ride || ride.userId !== userId) {
-      return NextResponse.json({ error: "Khong tim thay don." }, { status: 404 });
+      return NextResponse.json({ error: "Booking not found." }, { status: 404 });
     }
     if (ride.status !== "PENDING") {
       return NextResponse.json(
-        { error: "Chi co the huy don dang cho." },
+        { error: "Only pending bookings can be cancelled." },
         { status: 400 }
       );
     }
@@ -44,11 +44,11 @@ export async function POST(
 
   const rental = await prisma.rentalBooking.findUnique({ where: { id } });
   if (!rental || rental.userId !== userId) {
-    return NextResponse.json({ error: "Khong tim thay don." }, { status: 404 });
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
   if (rental.status !== "PENDING") {
     return NextResponse.json(
-      { error: "Chi co the huy don dang cho." },
+      { error: "Only pending bookings can be cancelled." },
       { status: 400 }
     );
   }

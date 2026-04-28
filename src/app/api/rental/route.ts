@@ -7,8 +7,8 @@ import { calculateCarRentalPrice } from "@/lib/pricing";
 
 const RentalSchema = z.object({
   carId: z.number().int().positive(),
-  pickupDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngay khong hop le."),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngay khong hop le."),
+  pickupDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
+  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
 });
 
 export async function POST(request: Request) {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Vui lòng đăng nhập để thuê xe." },
+        { error: "Please sign in to rent a car." },
         { status: 401 }
       );
     }
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     });
     if (!userExists) {
       return NextResponse.json(
-        { error: "Phiên đã hết hạn. Vui lòng đăng nhập lại." },
+        { error: "Session expired. Please sign in again." },
         { status: 401 }
       );
     }
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Du lieu khong hop le." },
+        { error: parsed.error.issues[0]?.message || "Invalid input." },
         { status: 400 }
       );
     }
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
     if (!car || !car.active) {
       return NextResponse.json(
-        { error: "Xe khong ton tai hoac khong con phuc vu." },
+        { error: "Car does not exist or is no longer listed." },
         { status: 400 }
       );
     }
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     if (!pricing) {
       return NextResponse.json(
-        { error: "Khoang thoi gian thue khong hop le." },
+        { error: "Invalid rental period." },
         { status: 400 }
       );
     }
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       data: {
         carId: car.id,
         carName: car.name,
-        dateRange: `${pickupDate} den ${returnDate}`,
+        dateRange: `${pickupDate} to ${returnDate}`,
         totalPrice: pricing.total,
         userId: session.user.id,
       },
@@ -74,6 +74,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, id: savedRental.id });
   } catch {
-    return NextResponse.json({ error: "Loi server." }, { status: 500 });
+    return NextResponse.json({ error: "Server error." }, { status: 500 });
   }
 }

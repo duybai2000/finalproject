@@ -7,13 +7,13 @@ export async function GET(request: Request) {
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return NextResponse.json(
-      { error: "Tọa độ không hợp lệ." },
+      { error: "Invalid coordinates." },
       { status: 400 }
     );
   }
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return NextResponse.json(
-      { error: "Tọa độ vượt phạm vi." },
+      { error: "Coordinates out of range." },
       { status: 400 }
     );
   }
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
     if (!res.ok) {
       return NextResponse.json(
-        { error: "Không thể tra cứu địa chỉ." },
+        { error: "Could not look up the address." },
         { status: 502 }
       );
     }
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     });
   } catch {
     return NextResponse.json(
-      { error: "Lỗi kết nối tới dịch vụ địa chỉ." },
+      { error: "Address service error." },
       { status: 502 }
     );
   }

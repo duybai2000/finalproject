@@ -24,7 +24,7 @@ export default function StatusFilter({ options, paramName = "status" }: Props) {
   };
 
   const active = (value: string) => current === value;
-  const all: Option = { value: "", label: "Tất cả" };
+  const all: Option = { value: "", label: "All" };
 
   return (
     <div className="flex flex-wrap gap-2">

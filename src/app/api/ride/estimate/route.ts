@@ -3,8 +3,8 @@ import { z } from "zod";
 import { calculateDriverHirePrice, getDriverDailyRate } from "@/lib/pricing";
 
 const EstimateSchema = z.object({
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày không hợp lệ."),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date."),
 });
 
 export async function POST(request: Request) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
+        { error: parsed.error.issues[0]?.message || "Invalid input." },
         { status: 400 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     if (!pricing) {
       return NextResponse.json(
-        { error: "Khoảng thời gian thuê không hợp lệ." },
+        { error: "Invalid rental period." },
         { status: 400 }
       );
     }
@@ -35,10 +35,10 @@ export async function POST(request: Request) {
       surchargeDays: pricing.surchargeDays,
       surchargeTotal: pricing.surchargeTotal,
       dailyRate: getDriverDailyRate(),
-      schedule: `${startDate} đến ${endDate}`,
-      durationLabel: `${pricing.totalDays} ngày`,
+      schedule: `${startDate} to ${endDate}`,
+      durationLabel: `${pricing.totalDays} day${pricing.totalDays === 1 ? "" : "s"}`,
     });
   } catch {
-    return NextResponse.json({ error: "Lỗi máy chủ." }, { status: 500 });
+    return NextResponse.json({ error: "Server error." }, { status: 500 });
   }
 }

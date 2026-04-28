@@ -20,7 +20,9 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string;
-    role: string;
+    // Optional so the auth callbacks can return an empty token to invalidate
+    // the session when the underlying user record disappears.
+    id?: string;
+    role?: string;
   }
 }

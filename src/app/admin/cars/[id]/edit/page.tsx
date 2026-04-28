@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import BackLink from "@/components/BackLink";
 import CarForm from "@/components/CarForm";
 
 export default async function EditCarPage({
@@ -16,7 +17,8 @@ export default async function EditCarPage({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-blue-400">Sua xe: {car.name}</h2>
+      <BackLink href="/admin/cars" label="Back to cars" />
+      <h2 className="text-2xl font-bold text-blue-400">Edit car: {car.name}</h2>
       <CarForm
         mode="edit"
         carId={car.id}

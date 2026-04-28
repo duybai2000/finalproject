@@ -22,7 +22,7 @@ type Props = {
 
 export default function CarForm({ mode, carId, initial }: Props) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [type, setType] = useState(initial?.type ?? "Thuong");
+  const [type, setType] = useState(initial?.type ?? "Standard");
   const [seats, setSeats] = useState(initial?.seats ?? 4);
   const [auto, setAuto] = useState(initial?.auto ?? true);
   const [dailyRate, setDailyRate] = useState(initial?.dailyRate ?? 700_000);
@@ -60,14 +60,14 @@ export default function CarForm({ mode, carId, initial }: Props) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.error || "Khong luu duoc xe.");
+        setError(data.error || "Could not save car.");
         return;
       }
 
       router.push("/admin/cars");
       router.refresh();
     } catch {
-      setError("Loi ket noi.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -78,7 +78,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
       onSubmit={handleSubmit}
       className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4 max-w-2xl"
     >
-      <Field label="Ten xe">
+      <Field label="Car name">
         <input
           type="text"
           value={name}
@@ -90,7 +90,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Loai">
+        <Field label="Type">
           <input
             type="text"
             value={type}
@@ -101,7 +101,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
           />
         </Field>
 
-        <Field label="So cho">
+        <Field label="Seats">
           <input
             type="number"
             min={1}
@@ -114,7 +114,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
         </Field>
       </div>
 
-      <Field label="Don gia (d/ngay)">
+      <Field label="Daily rate (VND/day)">
         <input
           type="number"
           min={1}
@@ -126,7 +126,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
         />
       </Field>
 
-      <Field label="URL ảnh">
+      <Field label="Image URL">
         <input
           type="url"
           value={img}
@@ -137,14 +137,14 @@ export default function CarForm({ mode, carId, initial }: Props) {
         />
       </Field>
 
-      <Field label="Mô tả">
+      <Field label="Description">
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           maxLength={1000}
           className={inputClass + " resize-none"}
-          placeholder="Đặc điểm, tình trạng, ghi chú dành cho khách thuê…"
+          placeholder="Features, condition, notes for renters..."
         />
       </Field>
 
@@ -156,7 +156,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
             onChange={(e) => setAuto(e.target.checked)}
             className="w-4 h-4 accent-emerald-500"
           />
-          So tu dong
+          Automatic transmission
         </label>
 
         <label className="flex items-center gap-2 text-sm text-gray-300">
@@ -166,7 +166,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
             onChange={(e) => setActive(e.target.checked)}
             className="w-4 h-4 accent-emerald-500"
           />
-          Dang hoat dong
+          Listed (active)
         </label>
       </div>
 
@@ -182,14 +182,14 @@ export default function CarForm({ mode, carId, initial }: Props) {
           disabled={submitting}
           className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-white font-semibold py-2 px-5 rounded-xl"
         >
-          {submitting ? "Dang luu..." : mode === "create" ? "Them xe" : "Cap nhat"}
+          {submitting ? "Saving..." : mode === "create" ? "Add car" : "Update"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin/cars")}
           className="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-5 rounded-xl"
         >
-          Huy
+          Cancel
         </button>
       </div>
     </form>

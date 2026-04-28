@@ -14,34 +14,34 @@ export default async function OwnerCarsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-blue-400">Xe cua toi</h2>
+        <h2 className="text-2xl font-bold text-blue-400">My cars</h2>
         <Link
           href="/owner/cars/new"
           className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl"
         >
-          + Dang xe moi
+          + List a new car
         </Link>
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
         {cars.length === 0 ? (
           <div className="p-6 text-gray-400">
-            <p>Ban chua dang xe nao.</p>
+            <p>You haven&apos;t listed any cars yet.</p>
             <p className="text-sm mt-1">
-              Bam &quot;Dang xe moi&quot; de bat dau cho thue chiec xe dau tien.
+              Click &quot;List a new car&quot; to start renting your first one out.
             </p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="text-gray-400 border-b border-white/10">
               <tr>
-                <th className="text-left p-4">Anh</th>
-                <th className="text-left p-4">Ten</th>
-                <th className="text-left p-4">Loai</th>
-                <th className="text-center p-4">Cho</th>
-                <th className="text-right p-4">Don gia</th>
-                <th className="text-center p-4">Trang thai</th>
-                <th className="text-right p-4">Hanh dong</th>
+                <th className="text-left p-4">Photo</th>
+                <th className="text-left p-4">Name</th>
+                <th className="text-left p-4">Type</th>
+                <th className="text-center p-4">Seats</th>
+                <th className="text-right p-4">Daily rate</th>
+                <th className="text-center p-4">Status</th>
+                <th className="text-right p-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -59,16 +59,16 @@ export default async function OwnerCarsPage() {
                   <td className="p-4 text-gray-300">{car.type}</td>
                   <td className="p-4 text-center">{car.seats}</td>
                   <td className="p-4 text-right text-emerald-400 font-bold">
-                    {car.dailyRate.toLocaleString("vi-VN")} d
+                    {car.dailyRate.toLocaleString("en-US")} VND
                   </td>
                   <td className="p-4 text-center">
                     {car.active ? (
                       <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
-                        Cho thue
+                        Listed
                       </span>
                     ) : (
                       <span className="text-xs bg-gray-500/20 text-gray-300 px-2 py-1 rounded">
-                        Tat
+                        Off
                       </span>
                     )}
                   </td>
@@ -78,7 +78,7 @@ export default async function OwnerCarsPage() {
                         href={`/owner/cars/${car.id}/edit`}
                         className="text-xs text-blue-300 hover:text-blue-200"
                       >
-                        Sua
+                        Edit
                       </Link>
                       <OwnerDeleteCarButton id={car.id} name={car.name} />
                     </div>

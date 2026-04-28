@@ -6,7 +6,7 @@ import RefundButton from "@/components/RefundButton";
 import { RIDE_STATUSES, RENTAL_STATUSES } from "@/lib/bookingStatus";
 
 function formatDateTime(d: Date | null) {
-  return d ? d.toLocaleString("vi-VN") : "—";
+  return d ? d.toLocaleString("en-US") : "—";
 }
 
 export default async function AdminBookingDetailPage({
@@ -35,21 +35,21 @@ export default async function AdminBookingDetailPage({
             Admin
           </Link>
           <span>/</span>
-          <span>Cuộc xe {ride.id}</span>
+          <span>Ride {ride.id}</span>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <Section title="Thông tin đơn">
-            <Row label="Mã đơn" value={ride.id} />
-            <Row label="Tạo lúc" value={formatDateTime(ride.createdAt)} />
-            <Row label="Lịch thuê" value={ride.distance} />
-            <Row label="Thời gian" value={ride.time} />
+          <Section title="Booking">
+            <Row label="Booking ID" value={ride.id} />
+            <Row label="Created" value={formatDateTime(ride.createdAt)} />
+            <Row label="Schedule" value={ride.distance} />
+            <Row label="Duration" value={ride.time} />
             <Row
-              label="Giá"
-              value={`${ride.estimatedPrice.toLocaleString("vi-VN")} đ`}
+              label="Price"
+              value={`${ride.estimatedPrice.toLocaleString("en-US")} VND`}
             />
             <div className="flex justify-between items-center pt-2">
-              <span className="text-gray-400 text-sm">Trạng thái</span>
+              <span className="text-gray-400 text-sm">Status</span>
               <AdminStatusSelect
                 type="ride"
                 id={ride.id}
@@ -59,13 +59,13 @@ export default async function AdminBookingDetailPage({
             </div>
           </Section>
 
-          <Section title="Thanh toán">
+          <Section title="Payment">
             <Row
-              label="Đã thanh toán"
-              value={ride.paidAt ? formatDateTime(ride.paidAt) : "Chưa"}
+              label="Paid at"
+              value={ride.paidAt ? formatDateTime(ride.paidAt) : "Unpaid"}
             />
             <Row
-              label="Đã hoàn tiền"
+              label="Refunded at"
               value={ride.refundedAt ? formatDateTime(ride.refundedAt) : "—"}
             />
             {ride.paidAt && !ride.refundedAt && (
@@ -75,26 +75,26 @@ export default async function AdminBookingDetailPage({
             )}
           </Section>
 
-          <Section title="Khách hàng">
-            <Row label="Họ tên" value={ride.user.name || "—"} />
+          <Section title="Customer">
+            <Row label="Name" value={ride.user.name || "—"} />
             <Row label="Email" value={ride.user.email || "—"} />
-            <Row label="Điện thoại" value={ride.user.phone || "—"} />
+            <Row label="Phone" value={ride.user.phone || "—"} />
           </Section>
 
-          <Section title="Tài xế">
+          <Section title="Driver">
             {ride.driver ? (
               <>
-                <Row label="Họ tên" value={ride.driver.name || "—"} />
+                <Row label="Name" value={ride.driver.name || "—"} />
                 <Row label="Email" value={ride.driver.email || "—"} />
-                <Row label="Điện thoại" value={ride.driver.phone || "—"} />
+                <Row label="Phone" value={ride.driver.phone || "—"} />
               </>
             ) : (
-              <p className="text-gray-400 text-sm">Chưa có tài xế nhận chuyến.</p>
+              <p className="text-gray-400 text-sm">No driver has accepted this ride yet.</p>
             )}
           </Section>
 
-          <Section title="Điểm đón">
-            <Row label="Địa chỉ" value={ride.pickup} />
+          <Section title="Pickup">
+            <Row label="Address" value={ride.pickup} />
             {ride.pickupLat !== null && ride.pickupLng !== null ? (
               <>
                 <Row
@@ -107,17 +107,17 @@ export default async function AdminBookingDetailPage({
                   rel="noreferrer"
                   className="text-blue-300 hover:text-blue-200 text-sm inline-flex items-center gap-1"
                 >
-                  Mở trên OpenStreetMap
+                  Open in OpenStreetMap
                 </a>
               </>
             ) : (
-              <p className="text-gray-400 text-sm">Không có GPS.</p>
+              <p className="text-gray-400 text-sm">No GPS data.</p>
             )}
           </Section>
 
           {ride.rating && (
-            <Section title="Đánh giá">
-              <Row label="Số sao" value={`${ride.rating.score} / 5`} />
+            <Section title="Rating">
+              <Row label="Score" value={`${ride.rating.score} / 5`} />
               {ride.rating.comment && (
                 <p className="text-gray-300 text-sm italic mt-2">
                   &quot;{ride.rating.comment}&quot;
@@ -153,21 +153,21 @@ export default async function AdminBookingDetailPage({
           Admin
         </Link>
         <span>/</span>
-        <span>Đơn thuê xe {rental.id}</span>
+        <span>Rental {rental.id}</span>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <Section title="Thông tin đơn">
-          <Row label="Mã đơn" value={rental.id} />
-          <Row label="Tạo lúc" value={formatDateTime(rental.createdAt)} />
-          <Row label="Xe" value={rental.carName} />
-          <Row label="Lịch thuê" value={rental.dateRange} />
+        <Section title="Booking">
+          <Row label="Booking ID" value={rental.id} />
+          <Row label="Created" value={formatDateTime(rental.createdAt)} />
+          <Row label="Car" value={rental.carName} />
+          <Row label="Dates" value={rental.dateRange} />
           <Row
-            label="Giá"
-            value={`${rental.totalPrice.toLocaleString("vi-VN")} đ`}
+            label="Price"
+            value={`${rental.totalPrice.toLocaleString("en-US")} VND`}
           />
           <div className="flex justify-between items-center pt-2">
-            <span className="text-gray-400 text-sm">Trạng thái</span>
+            <span className="text-gray-400 text-sm">Status</span>
             <AdminStatusSelect
               type="rental"
               id={rental.id}
@@ -177,13 +177,13 @@ export default async function AdminBookingDetailPage({
           </div>
         </Section>
 
-        <Section title="Thanh toán">
+        <Section title="Payment">
           <Row
-            label="Đã thanh toán"
-            value={rental.paidAt ? formatDateTime(rental.paidAt) : "Chưa"}
+            label="Paid at"
+            value={rental.paidAt ? formatDateTime(rental.paidAt) : "Unpaid"}
           />
           <Row
-            label="Đã hoàn tiền"
+            label="Refunded at"
             value={
               rental.refundedAt ? formatDateTime(rental.refundedAt) : "—"
             }
@@ -195,27 +195,27 @@ export default async function AdminBookingDetailPage({
           )}
         </Section>
 
-        <Section title="Khách hàng">
-          <Row label="Họ tên" value={rental.user.name || "—"} />
+        <Section title="Customer">
+          <Row label="Name" value={rental.user.name || "—"} />
           <Row label="Email" value={rental.user.email || "—"} />
-          <Row label="Điện thoại" value={rental.user.phone || "—"} />
+          <Row label="Phone" value={rental.user.phone || "—"} />
         </Section>
 
-        <Section title="Chủ xe">
+        <Section title="Owner">
           {car?.owner ? (
             <>
-              <Row label="Họ tên" value={car.owner.name || "—"} />
+              <Row label="Name" value={car.owner.name || "—"} />
               <Row label="Email" value={car.owner.email || "—"} />
-              <Row label="Điện thoại" value={car.owner.phone || "—"} />
+              <Row label="Phone" value={car.owner.phone || "—"} />
             </>
           ) : (
-            <p className="text-gray-400 text-sm">Xe của hệ thống (Platform).</p>
+            <p className="text-gray-400 text-sm">Platform-owned car.</p>
           )}
         </Section>
 
         {rental.rating && (
-          <Section title="Đánh giá">
-            <Row label="Số sao" value={`${rental.rating.score} / 5`} />
+          <Section title="Rating">
+            <Row label="Score" value={`${rental.rating.score} / 5`} />
             {rental.rating.comment && (
               <p className="text-gray-300 text-sm italic mt-2">
                 &quot;{rental.rating.comment}&quot;

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import BackLink from "@/components/BackLink";
 
 type Params = Promise<{ type: string; id: string }>;
 
@@ -10,13 +11,13 @@ function PaidBadge({ paidAt }: { paidAt: Date | null }) {
   if (paidAt) {
     return (
       <span className="text-xs bg-emerald-500/20 text-emerald-200 px-2 py-1 rounded">
-        Da thanh toan {paidAt.toLocaleDateString("vi-VN")}
+        Paid {paidAt.toLocaleDateString("en-US")}
       </span>
     );
   }
   return (
     <span className="text-xs bg-yellow-500/20 text-yellow-200 px-2 py-1 rounded">
-      Chua thanh toan
+      Unpaid
     </span>
   );
 }
@@ -51,40 +52,44 @@ export default async function BookingConfirmationPage({
     return (
       <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
         <div className="max-w-2xl mx-auto">
+          <div className="mb-4">
+            <BackLink href="/profile" label="Back to my bookings" />
+          </div>
+
           <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-6 py-5 mb-6">
             <h1 className="text-2xl font-bold text-emerald-200">
               {ride.paidAt
-                ? "Da thanh toan thanh cong"
-                : "Da dat tai xe thanh cong"}
+                ? "Payment successful"
+                : "Booking confirmed"}
             </h1>
-            <p className="text-sm text-emerald-100/80 mt-1">Ma don: {ride.id}</p>
+            <p className="text-sm text-emerald-100/80 mt-1">Booking ID: {ride.id}</p>
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-3">
             <div className="flex justify-between items-start gap-3">
-              <h2 className="text-lg font-semibold">Chi tiet cuoc xe</h2>
+              <h2 className="text-lg font-semibold">Ride details</h2>
               <PaidBadge paidAt={ride.paidAt} />
             </div>
             <p>
-              <span className="text-gray-400">Điểm đón: </span>
+              <span className="text-gray-400">Pickup: </span>
               {ride.pickup}
             </p>
             <p>
-              <span className="text-gray-400">Lịch thuê: </span>
+              <span className="text-gray-400">Schedule: </span>
               {ride.distance}
             </p>
             <p>
-              <span className="text-gray-400">Thời gian: </span>
+              <span className="text-gray-400">Duration: </span>
               {ride.time}
             </p>
             <p>
-              <span className="text-gray-400">Tong gia: </span>
+              <span className="text-gray-400">Total: </span>
               <span className="text-emerald-400 font-bold">
-                {ride.estimatedPrice.toLocaleString("vi-VN")} d
+                {ride.estimatedPrice.toLocaleString("en-US")} VND
               </span>
             </p>
             <p>
-              <span className="text-gray-400">Trạng thái: </span>
+              <span className="text-gray-400">Status: </span>
               <span className="text-xs bg-white/20 px-2 py-1 rounded">
                 {ride.status}
               </span>
@@ -93,14 +98,14 @@ export default async function BookingConfirmationPage({
             {ride.driver ? (
               <div className="border-t border-white/10 pt-3 mt-3 space-y-1">
                 <p className="text-sm text-emerald-200 font-semibold">
-                  Tài xế đã được phân công
+                  Driver assigned
                 </p>
                 <p>
-                  <span className="text-gray-400">Họ tên: </span>
-                  {ride.driver.name || "Chưa cập nhật"}
+                  <span className="text-gray-400">Name: </span>
+                  {ride.driver.name || "Not set"}
                 </p>
                 <p>
-                  <span className="text-gray-400">Số điện thoại: </span>
+                  <span className="text-gray-400">Phone: </span>
                   {ride.driver.phone ? (
                     <a
                       href={`tel:${ride.driver.phone}`}
@@ -109,20 +114,20 @@ export default async function BookingConfirmationPage({
                       {ride.driver.phone}
                     </a>
                   ) : (
-                    "Chưa cập nhật"
+                    "Not set"
                   )}
                 </p>
               </div>
             ) : (
               <p className="text-sm text-gray-400 pt-2">
-                Hệ thống đang tìm tài xế phù hợp. Bạn sẽ nhận thông tin liên hệ
-                ngay khi có tài xế nhận chuyến.
+                Looking for an available driver. You&apos;ll get the driver&apos;s
+                contact details as soon as one accepts the ride.
               </p>
             )}
 
             {ride.paidAt && (
               <p className="text-sm text-gray-400 pt-2 border-t border-white/10 mt-2">
-                Cảm ơn bạn đã hoàn tất thanh toán.
+                Thanks for completing your payment.
               </p>
             )}
           </div>
@@ -133,20 +138,20 @@ export default async function BookingConfirmationPage({
                 href={`/booking/ride/${ride.id}/payment`}
                 className="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
               >
-                Thanh toan ngay
+                Pay now
               </Link>
             )}
             <Link
               href="/profile"
               className="flex-1 text-center bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
             >
-              Xem lich su
+              View history
             </Link>
             <Link
               href="/"
               className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
             >
-              Ve trang chu
+              Home
             </Link>
           </div>
         </div>
@@ -160,44 +165,48 @@ export default async function BookingConfirmationPage({
   return (
     <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
       <div className="max-w-2xl mx-auto">
+        <div className="mb-4">
+          <BackLink href="/profile" label="Back to my bookings" />
+        </div>
+
         <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-6 py-5 mb-6">
           <h1 className="text-2xl font-bold text-emerald-200">
             {rental.paidAt
-              ? "Da thanh toan thanh cong"
-              : "Da thue xe thanh cong"}
+              ? "Payment successful"
+              : "Rental booked"}
           </h1>
-          <p className="text-sm text-emerald-100/80 mt-1">Ma don: {rental.id}</p>
+          <p className="text-sm text-emerald-100/80 mt-1">Booking ID: {rental.id}</p>
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-3">
           <div className="flex justify-between items-start gap-3">
-            <h2 className="text-lg font-semibold">Chi tiet thue xe</h2>
+            <h2 className="text-lg font-semibold">Rental details</h2>
             <PaidBadge paidAt={rental.paidAt} />
           </div>
           <p>
-            <span className="text-gray-400">Xe: </span>
+            <span className="text-gray-400">Car: </span>
             {rental.carName}
           </p>
           <p>
-            <span className="text-gray-400">Lich thue: </span>
+            <span className="text-gray-400">Dates: </span>
             {rental.dateRange}
           </p>
           <p>
-            <span className="text-gray-400">Tong gia: </span>
+            <span className="text-gray-400">Total: </span>
             <span className="text-emerald-400 font-bold">
-              {rental.totalPrice.toLocaleString("vi-VN")} d
+              {rental.totalPrice.toLocaleString("en-US")} VND
             </span>
           </p>
           <p>
-            <span className="text-gray-400">Trang thai: </span>
+            <span className="text-gray-400">Status: </span>
             <span className="text-xs bg-white/20 px-2 py-1 rounded">
               {rental.status}
             </span>
           </p>
           <p className="text-sm text-gray-400 pt-2">
             {rental.paidAt
-              ? "Cam on ban da hoan tat thanh toan."
-              : "Quan tri vien se xac nhan don thue xe cua ban som nhat."}
+              ? "Thanks for completing your payment."
+              : "The owner will confirm your booking shortly."}
           </p>
         </div>
 
@@ -207,20 +216,20 @@ export default async function BookingConfirmationPage({
               href={`/booking/rental/${rental.id}/payment`}
               className="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
             >
-              Thanh toan ngay
+              Pay now
             </Link>
           )}
           <Link
             href="/profile"
             className="flex-1 text-center bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
           >
-            Xem lich su
+            View history
           </Link>
           <Link
             href="/"
             className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
           >
-            Ve trang chu
+            Home
           </Link>
         </div>
       </div>

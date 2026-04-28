@@ -16,21 +16,21 @@ export async function POST(
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: "Vui lòng đăng nhập." },
+      { error: "Please sign in." },
       { status: 401 }
     );
   }
 
   const { type, id } = await params;
   if (type !== "ride" && type !== "rental") {
-    return NextResponse.json({ error: "Loại đơn không hợp lệ." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid booking type." }, { status: 400 });
   }
 
   const body = await request.json().catch(() => null);
   const parsed = RatingSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ." },
+      { error: parsed.error.issues[0]?.message || "Invalid input." },
       { status: 400 }
     );
   }
@@ -41,17 +41,17 @@ export async function POST(
       include: { rating: true },
     });
     if (!ride || ride.userId !== session.user.id) {
-      return NextResponse.json({ error: "Không tìm thấy đơn." }, { status: 404 });
+      return NextResponse.json({ error: "Booking not found." }, { status: 404 });
     }
     if (ride.status !== "COMPLETED") {
       return NextResponse.json(
-        { error: "Chỉ có thể đánh giá sau khi chuyến hoàn tất." },
+        { error: "You can only rate a completed ride." },
         { status: 400 }
       );
     }
     if (ride.rating) {
       return NextResponse.json(
-        { error: "Bạn đã đánh giá chuyến này." },
+        { error: "You have already rated this ride." },
         { status: 400 }
       );
     }
@@ -71,17 +71,17 @@ export async function POST(
     include: { rating: true },
   });
   if (!rental || rental.userId !== session.user.id) {
-    return NextResponse.json({ error: "Không tìm thấy đơn." }, { status: 404 });
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 });
   }
   if (rental.status !== "COMPLETED") {
     return NextResponse.json(
-      { error: "Chỉ có thể đánh giá sau khi đơn hoàn tất." },
+      { error: "You can only rate a completed booking." },
       { status: 400 }
     );
   }
   if (rental.rating) {
     return NextResponse.json(
-      { error: "Bạn đã đánh giá đơn này." },
+      { error: "You have already rated this booking." },
       { status: 400 }
     );
   }

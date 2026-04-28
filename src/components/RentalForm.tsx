@@ -34,7 +34,7 @@ export default function RentalForm() {
 
   const handleSelectCar = async (carId: number) => {
     if (!pickupDate || !returnDate) {
-      setError("Vui long chon ngay nhan va ngay tra truoc khi chon xe.");
+      setError("Please choose pickup and return dates first.");
       return;
     }
 
@@ -51,7 +51,7 @@ export default function RentalForm() {
       const contentType = res.headers.get("content-type");
       const data = contentType?.includes("application/json")
         ? await res.json()
-        : { error: "Server tra ve dinh dang khong hop le." };
+        : { error: "Server returned an unexpected response." };
 
       if (res.status === 401) {
         router.push("/login");
@@ -59,7 +59,7 @@ export default function RentalForm() {
       }
 
       if (!res.ok) {
-        setError(data.error || "Khong the thue xe.");
+        setError(data.error || "Could not book this car.");
         return;
       }
 
@@ -68,7 +68,7 @@ export default function RentalForm() {
       }
     } catch (err) {
       console.error(err);
-      setError("Khong the ket noi server. Vui long thu lai.");
+      setError("Could not reach the server. Please try again.");
     } finally {
       setBookingCarId(null);
     }
@@ -90,7 +90,7 @@ export default function RentalForm() {
       })
       .catch((err) => {
         console.error(err);
-        setError("Khong tai duoc bang gia xe.");
+        setError("Could not load the car list.");
       });
   }, [pickupDate, returnDate]);
 
@@ -104,7 +104,7 @@ export default function RentalForm() {
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl shadow-xl flex flex-col gap-4">
         <div className="grid w-full gap-4 md:grid-cols-2">
           <label className="relative block">
-            <span className="mb-2 block text-sm font-medium text-gray-300">Ngay nhan</span>
+            <span className="mb-2 block text-sm font-medium text-gray-300">Pickup date</span>
             <Calendar className="absolute left-3 bottom-3.5 text-gray-400 w-5 h-5" />
             <input
               type="date"
@@ -122,7 +122,7 @@ export default function RentalForm() {
           </label>
 
           <label className="relative block">
-            <span className="mb-2 block text-sm font-medium text-gray-300">Ngay tra</span>
+            <span className="mb-2 block text-sm font-medium text-gray-300">Return date</span>
             <Calendar className="absolute left-3 bottom-3.5 text-gray-400 w-5 h-5" />
             <input
               type="date"
@@ -135,8 +135,8 @@ export default function RentalForm() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-300">
-          <p>Gia tinh theo so ngay thue va don gia tung loai xe.</p>
-          <p>Thu 7, Chu nhat va ngay le duoc cong them 20% cho ngay do.</p>
+          <p>Total = daily rate × number of rental days.</p>
+          <p>Saturdays, Sundays, and public holidays are surcharged 20%.</p>
         </div>
       </div>
 
@@ -180,10 +180,10 @@ export default function RentalForm() {
               )}
               <div className="flex items-center gap-4 mt-3 text-sm text-gray-300">
                 <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
-                  <Users className="w-4 h-4" /> {car.seats} Cho
+                  <Users className="w-4 h-4" /> {car.seats} seats
                 </span>
                 <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
-                  <Settings className="w-4 h-4" /> {car.auto ? "Tu dong" : "So san"}
+                  <Settings className="w-4 h-4" /> {car.auto ? "Automatic" : "Manual"}
                 </span>
                 <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
                   <CarIcon className="w-4 h-4" /> {car.type}
@@ -192,9 +192,9 @@ export default function RentalForm() {
               <div className="mt-5 space-y-2">
                 <div className="flex justify-between items-end">
                   <div>
-                    <p className="text-xs text-gray-400">Gia co ban moi ngay</p>
+                    <p className="text-xs text-gray-400">Daily rate</p>
                     <p className="text-lg font-bold text-blue-400">
-                      {car.dailyRate.toLocaleString("vi-VN")} d
+                      {car.dailyRate.toLocaleString("en-US")} VND
                     </p>
                   </div>
                   <button
@@ -203,24 +203,24 @@ export default function RentalForm() {
                     disabled={bookingCarId !== null}
                     className="bg-white/10 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60 text-white px-4 py-2 rounded-lg transition-colors text-sm font-semibold"
                   >
-                    {bookingCarId === car.id ? "Dang dat..." : "Chon Xe"}
+                    {bookingCarId === car.id ? "Booking..." : "Book this car"}
                   </button>
                 </div>
 
                 {pickupDate && returnDate ? (
                   <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300">
                     <p className="font-medium text-white">
-                      Tong thue: {car.estimatedTotal?.toLocaleString("vi-VN")} d
+                      Total: {car.estimatedTotal?.toLocaleString("en-US")} VND
                     </p>
-                    <p className="mt-1">{car.totalDays} ngay</p>
-                    <p>{car.surchargeDays} ngay cuoi tuan/ngay le</p>
+                    <p className="mt-1">{car.totalDays} day(s)</p>
+                    <p>{car.surchargeDays} weekend / holiday day(s)</p>
                     {car.surchargeTotal > 0 && (
-                      <p>Phu thu: +{car.surchargeTotal.toLocaleString("vi-VN")} d</p>
+                      <p>Surcharge: +{car.surchargeTotal.toLocaleString("en-US")} VND</p>
                     )}
                   </div>
                 ) : (
                   <p className="text-sm text-gray-400">
-                    Chon ngay nhan va ngay tra de xem tong gia.
+                    Pick the dates above to see the total.
                   </p>
                 )}
               </div>

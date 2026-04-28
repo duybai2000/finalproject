@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import BackLink from "@/components/BackLink";
 import OwnerCarForm from "@/components/OwnerCarForm";
 
 export default async function EditOwnerCarPage({
@@ -19,7 +20,8 @@ export default async function EditOwnerCarPage({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-blue-400">Sua xe: {car.name}</h2>
+      <BackLink href="/owner/cars" label="Back to my cars" />
+      <h2 className="text-2xl font-bold text-blue-400">Edit car: {car.name}</h2>
       <OwnerCarForm
         mode="edit"
         carId={car.id}

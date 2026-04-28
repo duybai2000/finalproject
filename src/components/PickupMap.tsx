@@ -94,11 +94,11 @@ export default function PickupMap({ marker, onPick }: Props) {
 
       <div className="pointer-events-none absolute left-3 top-3 right-3 flex justify-between gap-2 text-xs">
         <span className="pointer-events-auto bg-slate-900/85 text-gray-200 px-3 py-1.5 rounded-lg backdrop-blur">
-          Bấm vào bản đồ để chọn điểm đón
+          Click the map to set pickup
         </span>
         {busy && (
           <span className="pointer-events-auto bg-slate-900/85 text-gray-300 px-3 py-1.5 rounded-lg backdrop-blur">
-            Đang tra cứu địa chỉ...
+            Looking up address...
           </span>
         )}
       </div>

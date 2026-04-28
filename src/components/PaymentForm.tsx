@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CreditCard, Lock } from "lucide-react";
+import BackLink from "@/components/BackLink";
 
 type Props = {
   type: "ride" | "rental";
@@ -31,19 +32,19 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
     e.preventDefault();
 
     if (cardNumber.replace(/\s/g, "").length < 12) {
-      setError("So the khong hop le.");
+      setError("Card number is invalid.");
       return;
     }
     if (!name.trim()) {
-      setError("Vui long nhap ten chu the.");
+      setError("Please enter the cardholder name.");
       return;
     }
     if (!/^\d{2}\/\d{2}$/.test(expiry)) {
-      setError("Han su dung phai theo dinh dang MM/YY.");
+      setError("Expiry date must be in MM/YY format.");
       return;
     }
     if (!/^\d{3,4}$/.test(cvv)) {
-      setError("CVV khong hop le.");
+      setError("CVV is invalid.");
       return;
     }
 
@@ -58,13 +59,13 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.error || "Khong the thanh toan.");
+        setError(data.error || "Payment could not be completed.");
         return;
       }
 
       router.push(`/booking/${type}/${id}?paid=1`);
     } catch {
-      setError("Loi ket noi server.");
+      setError("Connection error.");
     } finally {
       setSubmitting(false);
     }
@@ -73,11 +74,15 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
   return (
     <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
       <div className="max-w-xl mx-auto">
+        <div className="mb-4">
+          <BackLink href={`/booking/${type}/${id}`} label="Back to booking" />
+        </div>
+
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
-          <h1 className="text-2xl font-bold mb-2">Thanh toan</h1>
+          <h1 className="text-2xl font-bold mb-2">Payment</h1>
           <p className="text-sm text-gray-400">{label}</p>
           <p className="mt-3 text-3xl font-bold text-emerald-400">
-            {amount.toLocaleString("vi-VN")} d
+            {amount.toLocaleString("en-US")} VND
           </p>
         </div>
 
@@ -87,11 +92,11 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
         >
           <div className="flex items-center gap-2 text-gray-300 mb-2">
             <CreditCard className="w-5 h-5" />
-            <span className="font-semibold">Thong tin the</span>
+            <span className="font-semibold">Card details</span>
           </div>
 
           <label className="block">
-            <span className="text-sm text-gray-300">So the</span>
+            <span className="text-sm text-gray-300">Card number</span>
             <input
               type="text"
               value={cardNumber}
@@ -104,12 +109,12 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
           </label>
 
           <label className="block">
-            <span className="text-sm text-gray-300">Ten chu the</span>
+            <span className="text-sm text-gray-300">Cardholder name</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value.toUpperCase())}
-              placeholder="NGUYEN VAN A"
+              placeholder="JOHN DOE"
               className="mt-1 w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-500 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -117,7 +122,7 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="text-sm text-gray-300">Han su dung</span>
+              <span className="text-sm text-gray-300">Expiry (MM/YY)</span>
               <input
                 type="text"
                 value={expiry}
@@ -161,12 +166,12 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
             disabled={submitting}
             className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all"
           >
-            {submitting ? "Dang xu ly..." : "Thanh toan"}
+            {submitting ? "Processing..." : "Pay"}
           </button>
 
           <p className="flex items-center justify-center gap-2 text-xs text-gray-400 pt-2">
             <Lock className="w-3 h-3" />
-            Giao dịch được mã hóa. Thông tin thẻ không được lưu trên hệ thống.
+            Transactions are encrypted. We do not store your card details.
           </p>
         </form>
       </div>

@@ -21,17 +21,17 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-blue-400">Nguoi dung</h2>
+      <h2 className="text-2xl font-bold text-blue-400">Users</h2>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-gray-400 border-b border-white/10">
             <tr>
-              <th className="text-left p-4">Ten</th>
+              <th className="text-left p-4">Name</th>
               <th className="text-left p-4">Email</th>
-              <th className="text-center p-4">Tham gia</th>
-              <th className="text-center p-4">Don</th>
-              <th className="text-right p-4">Vai tro / Hanh dong</th>
+              <th className="text-center p-4">Joined</th>
+              <th className="text-center p-4">Bookings</th>
+              <th className="text-right p-4">Role / Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -41,9 +41,9 @@ export default async function AdminUsersPage() {
                 <tr key={u.id} className="border-b border-white/5 last:border-b-0">
                   <td className="p-4">
                     <p className="font-medium">
-                      {u.name || "Khong ten"}
+                      {u.name || "No name"}
                       {isSelf && (
-                        <span className="ml-2 text-xs text-emerald-400">(ban)</span>
+                        <span className="ml-2 text-xs text-emerald-400">(you)</span>
                       )}
                     </p>
                   </td>

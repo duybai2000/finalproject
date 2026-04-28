@@ -16,7 +16,7 @@ export async function PATCH(
 
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json(
-      { error: "Khong co quyen." },
+      { error: "Forbidden." },
       { status: 403 }
     );
   }
@@ -24,7 +24,7 @@ export async function PATCH(
   const { type, id } = await params;
 
   if (type !== "ride" && type !== "rental") {
-    return NextResponse.json({ error: "Loai don khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid booking type." }, { status: 400 });
   }
 
   const body = await request.json().catch(() => null);
@@ -35,7 +35,7 @@ export async function PATCH(
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Trang thai khong hop le." },
+      { error: "Invalid status." },
       { status: 400 }
     );
   }
@@ -56,7 +56,7 @@ export async function PATCH(
     return NextResponse.json({ success: true, status: updated.status });
   } catch {
     return NextResponse.json(
-      { error: "Khong tim thay don." },
+      { error: "Booking not found." },
       { status: 404 }
     );
   }

@@ -12,19 +12,19 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
   const body = await request.json().catch(() => null);
   const parsed = RoleSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Vai tro khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
 
   if (id === session.user.id && parsed.data.role !== "ADMIN") {
     return NextResponse.json(
-      { error: "Khong the tu ha quyen admin cua chinh minh." },
+      { error: "You cannot demote your own admin account." },
       { status: 400 }
     );
   }
@@ -33,7 +33,7 @@ export async function PATCH(
     await prisma.user.update({ where: { id }, data: { role: parsed.data.role } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Khong tim thay nguoi dung." }, { status: 404 });
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
 }
 
@@ -43,14 +43,14 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
 
   if (id === session.user.id) {
     return NextResponse.json(
-      { error: "Khong the xoa tai khoan cua chinh minh." },
+      { error: "You cannot delete your own account." },
       { status: 400 }
     );
   }
@@ -63,7 +63,7 @@ export async function DELETE(
   if (rideCount + rentalCount > 0) {
     return NextResponse.json(
       {
-        error: `Nguoi dung con ${rideCount + rentalCount} don. Khong the xoa.`,
+        error: `User has ${rideCount + rentalCount} active booking(s) and cannot be deleted.`,
       },
       { status: 400 }
     );
@@ -73,6 +73,6 @@ export async function DELETE(
     await prisma.user.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Khong tim thay nguoi dung." }, { status: 404 });
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
 }

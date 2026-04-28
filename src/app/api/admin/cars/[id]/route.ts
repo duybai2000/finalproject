@@ -26,20 +26,20 @@ export async function PATCH(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
   const carId = parseId(id);
   if (!carId) {
-    return NextResponse.json({ error: "ID khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid ID." }, { status: 400 });
   }
 
   const body = await request.json().catch(() => null);
   const parsed = CarUpdateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message || "Du lieu khong hop le." },
+      { error: parsed.error.issues[0]?.message || "Invalid input." },
       { status: 400 }
     );
   }
@@ -48,7 +48,7 @@ export async function PATCH(
     await prisma.car.update({ where: { id: carId }, data: parsed.data });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Khong tim thay xe." }, { status: 404 });
+    return NextResponse.json({ error: "Car not found." }, { status: 404 });
   }
 }
 
@@ -58,19 +58,19 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions);
   if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Khong co quyen." }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const { id } = await params;
   const carId = parseId(id);
   if (!carId) {
-    return NextResponse.json({ error: "ID khong hop le." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid ID." }, { status: 400 });
   }
 
   try {
     await prisma.car.delete({ where: { id: carId } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Khong tim thay xe." }, { status: 404 });
+    return NextResponse.json({ error: "Car not found." }, { status: 404 });
   }
 }
