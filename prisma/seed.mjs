@@ -14,10 +14,13 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const password = await bcrypt.hash("123456", 10);
 
+  // Stable IDs for the seeded demo accounts so re-seeding the DB doesn't
+  // invalidate JWTs in existing browser sessions.
   await prisma.user.upsert({
     where: { email: "admin@gmail.com" },
     update: {},
     create: {
+      id: "seed-admin",
       email: "admin@gmail.com",
       name: "Admin",
       phone: "0900000001",
@@ -30,6 +33,7 @@ async function main() {
     where: { email: "user@gmail.com" },
     update: {},
     create: {
+      id: "seed-user",
       email: "user@gmail.com",
       name: "Student",
       phone: "0901234567",
@@ -42,6 +46,7 @@ async function main() {
     where: { email: "owner@gmail.com" },
     update: {},
     create: {
+      id: "seed-owner",
       email: "owner@gmail.com",
       name: "Anh Tuan",
       phone: "0908888888",

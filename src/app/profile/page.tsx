@@ -6,12 +6,18 @@ import { Star } from "lucide-react";
 import CancelBookingButton from "@/components/CancelBookingButton";
 import EditProfileForm from "@/components/EditProfileForm";
 import RatingForm from "@/components/RatingForm";
+import StatusFilter from "@/components/StatusFilter";
+import { RIDE_STATUSES, RENTAL_STATUSES } from "@/lib/bookingStatus";
 
 function buildOpenStreetMapUrl(lat: number, lng: number) {
   return `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=16/${lat.toFixed(6)}/${lng.toFixed(6)}`;
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ rideStatus?: string; rentalStatus?: string }>;
+}) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -19,6 +25,9 @@ export default async function ProfilePage() {
   }
 
   const user = session.user;
+  const sp = await searchParams;
+  const rideStatus = sp.rideStatus;
+  const rentalStatus = sp.rentalStatus;
 
   const [dbUser, rides, rentals] = await Promise.all([
     prisma.user.findUnique({
@@ -26,7 +35,10 @@ export default async function ProfilePage() {
       select: { phone: true },
     }),
     prisma.rideBooking.findMany({
-      where: { userId: user.id },
+      where: {
+        userId: user.id,
+        ...(rideStatus ? { status: rideStatus } : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: {
         driver: { select: { name: true, phone: true } },
@@ -34,7 +46,10 @@ export default async function ProfilePage() {
       },
     }),
     prisma.rentalBooking.findMany({
-      where: { userId: user.id },
+      where: {
+        userId: user.id,
+        ...(rentalStatus ? { status: rentalStatus } : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: { rating: true },
     }),
@@ -61,7 +76,13 @@ export default async function ProfilePage() {
           />
         </div>
 
-        <h2 className="text-2xl font-bold mb-4 text-blue-400">Cuoc Xe Da Dat</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="text-2xl font-bold text-blue-400">Cuốc Xe Đã Đặt</h2>
+          <StatusFilter
+            paramName="rideStatus"
+            options={RIDE_STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
         <div className="space-y-4 mb-8">
           {rides.length === 0 ? (
             <p className="text-gray-400">Ban chua dat cuoc xe nao.</p>
@@ -123,7 +144,13 @@ export default async function ProfilePage() {
           )}
         </div>
 
-        <h2 className="text-2xl font-bold mb-4 text-orange-400">Lich Su Thue Xe</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="text-2xl font-bold text-orange-400">Lịch Sử Thuê Xe</h2>
+          <StatusFilter
+            paramName="rentalStatus"
+            options={RENTAL_STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
         <div className="space-y-4">
           {rentals.length === 0 ? (
             <p className="text-gray-400">Ban chua thue chiec xe nao.</p>

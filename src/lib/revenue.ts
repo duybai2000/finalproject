@@ -34,11 +34,11 @@ export async function getRevenueStats(): Promise<RevenueStats> {
 
   const [paidRides, paidRentals] = await Promise.all([
     prisma.rideBooking.findMany({
-      where: { paidAt: { not: null } },
+      where: { paidAt: { not: null }, refundedAt: null },
       select: { estimatedPrice: true, paidAt: true, driverId: true },
     }),
     prisma.rentalBooking.findMany({
-      where: { paidAt: { not: null } },
+      where: { paidAt: { not: null }, refundedAt: null },
       select: { totalPrice: true, paidAt: true, carId: true },
     }),
   ]);
@@ -123,7 +123,7 @@ export async function getRevenueStats(): Promise<RevenueStats> {
 
 export async function getDriverEarnings(driverId: string) {
   const paid = await prisma.rideBooking.findMany({
-    where: { driverId, paidAt: { not: null } },
+    where: { driverId, paidAt: { not: null }, refundedAt: null },
     select: { estimatedPrice: true },
   });
 
@@ -137,6 +137,47 @@ export async function getDriverEarnings(driverId: string) {
     commission += split.platformCommission;
   }
   return { gross, net, commission, paidRides: paid.length };
+}
+
+export async function getOwnerDailyRevenue(ownerId: string): Promise<DailyRevenue[]> {
+  const today = startOfDayUtc(new Date());
+  const sevenAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+
+  const cars = await prisma.car.findMany({
+    where: { ownerId },
+    select: { id: true },
+  });
+  const carIds = cars.map((c) => c.id);
+
+  const buckets = new Map<string, number>();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sevenAgo.getTime() + i * 24 * 60 * 60 * 1000);
+    buckets.set(isoDay(d), 0);
+  }
+
+  if (carIds.length === 0) {
+    return Array.from(buckets.entries()).map(([date, total]) => ({ date, total }));
+  }
+
+  const paid = await prisma.rentalBooking.findMany({
+    where: {
+      carId: { in: carIds },
+      paidAt: { not: null },
+      refundedAt: null,
+    },
+    select: { totalPrice: true, paidAt: true },
+  });
+
+  for (const b of paid) {
+    if (!b.paidAt) continue;
+    const split = splitRevenue(b.totalPrice, true);
+    const dayKey = isoDay(startOfDayUtc(b.paidAt));
+    if (buckets.has(dayKey)) {
+      buckets.set(dayKey, (buckets.get(dayKey) ?? 0) + split.ownerNet);
+    }
+  }
+
+  return Array.from(buckets.entries()).map(([date, total]) => ({ date, total }));
 }
 
 /**
@@ -155,7 +196,11 @@ export async function getOwnerEarnings(ownerId: string) {
   }
 
   const paid = await prisma.rentalBooking.findMany({
-    where: { carId: { in: carIds }, paidAt: { not: null } },
+    where: {
+      carId: { in: carIds },
+      paidAt: { not: null },
+      refundedAt: null,
+    },
     select: { totalPrice: true },
   });
 

@@ -1,20 +1,31 @@
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 import AdminStatusSelect from "@/components/AdminStatusSelect";
+import StatusFilter from "@/components/StatusFilter";
 import { RENTAL_STATUSES, RIDE_STATUSES } from "@/lib/bookingStatus";
 import { getRevenueStats } from "@/lib/revenue";
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ rideStatus?: string; rentalStatus?: string }>;
+}) {
+  const sp = await searchParams;
+  const { rideStatus, rentalStatus } = sp;
+
   const [usersCount, ridesCount, rentalsCount, rides, rentals, revenue] =
     await Promise.all([
       prisma.user.count(),
       prisma.rideBooking.count(),
       prisma.rentalBooking.count(),
       prisma.rideBooking.findMany({
+        where: rideStatus ? { status: rideStatus } : undefined,
         orderBy: { createdAt: "desc" },
         include: { user: { select: { name: true, email: true } } },
         take: 50,
       }),
       prisma.rentalBooking.findMany({
+        where: rentalStatus ? { status: rentalStatus } : undefined,
         orderBy: { createdAt: "desc" },
         include: { user: { select: { name: true, email: true } } },
         take: 50,
@@ -124,7 +135,13 @@ export default async function AdminDashboard() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-blue-400 mb-4">Quan ly cuoc xe</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="text-2xl font-bold text-blue-400">Quản lý cuộc xe</h2>
+          <StatusFilter
+            paramName="rideStatus"
+            options={RIDE_STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
           {rides.length === 0 ? (
             <p className="text-gray-400 p-6">Chua co cuoc xe nao.</p>
@@ -142,9 +159,11 @@ export default async function AdminDashboard() {
               </thead>
               <tbody>
                 {rides.map((ride) => (
-                  <tr key={ride.id} className="border-b border-white/5 last:border-b-0">
+                  <tr key={ride.id} className="border-b border-white/5 last:border-b-0 hover:bg-white/5">
                     <td className="p-4">
-                      <p className="font-medium">{ride.user.name || "Khong ten"}</p>
+                      <Link href={`/admin/booking/ride/${ride.id}`} className="font-medium hover:text-blue-300">
+                        {ride.user.name || "Khong ten"}
+                      </Link>
                       <p className="text-xs text-gray-400">{ride.user.email}</p>
                     </td>
                     <td className="p-4">
@@ -185,7 +204,13 @@ export default async function AdminDashboard() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-orange-400 mb-4">Quan ly thue xe</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="text-2xl font-bold text-orange-400">Quản lý thuê xe</h2>
+          <StatusFilter
+            paramName="rentalStatus"
+            options={RENTAL_STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
           {rentals.length === 0 ? (
             <p className="text-gray-400 p-6">Chua co don thue xe nao.</p>
@@ -205,10 +230,12 @@ export default async function AdminDashboard() {
                 {rentals.map((rental) => (
                   <tr
                     key={rental.id}
-                    className="border-b border-white/5 last:border-b-0"
+                    className="border-b border-white/5 last:border-b-0 hover:bg-white/5"
                   >
                     <td className="p-4">
-                      <p className="font-medium">{rental.user.name || "Khong ten"}</p>
+                      <Link href={`/admin/booking/rental/${rental.id}`} className="font-medium hover:text-blue-300">
+                        {rental.user.name || "Khong ten"}
+                      </Link>
                       <p className="text-xs text-gray-400">{rental.user.email}</p>
                     </td>
                     <td className="p-4">{rental.carName}</td>

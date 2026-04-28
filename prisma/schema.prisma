@@ -37,6 +37,7 @@ model RideBooking {
   time           String   // legacy: stores duration label "{days} ngay"
   status         String   @default("PENDING") // PENDING, ACCEPTED, COMPLETED, CANCELLED
   paidAt         DateTime?
+  refundedAt     DateTime?
   createdAt      DateTime @default(now())
 
   userId         String
@@ -54,6 +55,7 @@ model RentalBooking {
   totalPrice     Int
   status         String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
   paidAt         DateTime?
+  refundedAt     DateTime?
   createdAt      DateTime @default(now())
 
   userId         String

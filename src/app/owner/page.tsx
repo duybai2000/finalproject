@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-import { getOwnerEarnings } from "@/lib/revenue";
+import { getOwnerDailyRevenue, getOwnerEarnings } from "@/lib/revenue";
 import { PLATFORM_COMMISSION_RATE } from "@/lib/commission";
 
 export default async function OwnerDashboard() {
@@ -18,7 +18,11 @@ export default async function OwnerDashboard() {
           orderBy: { createdAt: "desc" },
         });
 
-  const earnings = await getOwnerEarnings(ownerId);
+  const [earnings, daily] = await Promise.all([
+    getOwnerEarnings(ownerId),
+    getOwnerDailyRevenue(ownerId),
+  ]);
+  const peak = Math.max(1, ...daily.map((d) => d.total));
   const activeCars = cars.filter((c) => c.active).length;
   const pending = bookings.filter((b) => b.status === "PENDING").length;
 
@@ -82,6 +86,36 @@ export default async function OwnerDashboard() {
           {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% giá trị đơn —
           phần còn lại là phí dịch vụ của nền tảng.
         </p>
+      </div>
+
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-semibold mb-4">
+          Doanh thu thực nhận 7 ngày gần đây
+        </h2>
+        <div className="grid grid-cols-7 gap-2 items-end h-40">
+          {daily.map((d) => {
+            const heightPct = (d.total / peak) * 100;
+            return (
+              <div key={d.date} className="flex flex-col items-center gap-2">
+                <div className="flex-1 w-full flex items-end">
+                  <div
+                    className="w-full rounded-t bg-gradient-to-t from-emerald-500/40 to-emerald-400/80 min-h-[2px]"
+                    style={{
+                      height: `${Math.max(heightPct, d.total > 0 ? 8 : 2)}%`,
+                    }}
+                    title={`${d.total.toLocaleString("vi-VN")} đ`}
+                  />
+                </div>
+                <p className="text-xs text-gray-400">{d.date.slice(5)}</p>
+              </div>
+            );
+          })}
+        </div>
+        {daily.every((d) => d.total === 0) && (
+          <p className="text-sm text-gray-400 mt-3">
+            Chưa có đơn nào được thanh toán trong 7 ngày qua.
+          </p>
+        )}
       </div>
 
       {bookings.length > 0 && (

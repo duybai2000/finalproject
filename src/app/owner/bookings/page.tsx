@@ -2,12 +2,19 @@ import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import OwnerStatusSelect from "@/components/OwnerStatusSelect";
+import StatusFilter from "@/components/StatusFilter";
 import { RENTAL_STATUSES } from "@/lib/bookingStatus";
 import { splitRevenue } from "@/lib/commission";
 
-export default async function OwnerBookingsPage() {
+export default async function OwnerBookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   const ownerId = session!.user.id;
+  const sp = await searchParams;
+  const status = sp.status;
 
   const cars = await prisma.car.findMany({
     where: { ownerId },
@@ -19,14 +26,24 @@ export default async function OwnerBookingsPage() {
     carIds.length === 0
       ? []
       : await prisma.rentalBooking.findMany({
-          where: { carId: { in: carIds } },
+          where: {
+            carId: { in: carIds },
+            ...(status ? { status } : {}),
+          },
           orderBy: { createdAt: "desc" },
           include: { user: { select: { name: true, email: true, phone: true } } },
         });
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-blue-400">Don thue tren xe cua toi</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold text-blue-400">
+          Đơn thuê trên xe của tôi
+        </h2>
+        <StatusFilter
+          options={RENTAL_STATUSES.map((s) => ({ value: s, label: s }))}
+        />
+      </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
         {bookings.length === 0 ? (

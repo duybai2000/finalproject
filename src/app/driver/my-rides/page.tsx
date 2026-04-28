@@ -2,20 +2,36 @@ import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import DriverStatusSelect from "@/components/DriverStatusSelect";
+import StatusFilter from "@/components/StatusFilter";
 import { RIDE_STATUSES } from "@/lib/bookingStatus";
 import { splitRideRevenue } from "@/lib/commission";
 
-export default async function DriverMyRidesPage() {
+export default async function DriverMyRidesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const session = await getServerSession(authOptions);
+  const sp = await searchParams;
+  const status = sp.status;
+
   const rides = await prisma.rideBooking.findMany({
-    where: { driverId: session!.user.id },
+    where: {
+      driverId: session!.user.id,
+      ...(status ? { status } : {}),
+    },
     orderBy: { createdAt: "desc" },
     include: { user: { select: { name: true, email: true, phone: true } } },
   });
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-purple-400">Chuyến của tôi</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold text-purple-400">Chuyến của tôi</h2>
+        <StatusFilter
+          options={RIDE_STATUSES.map((s) => ({ value: s, label: s }))}
+        />
+      </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
         {rides.length === 0 ? (
