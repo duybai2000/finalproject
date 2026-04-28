@@ -17,7 +17,18 @@ export async function POST(request: Request) {
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Vui long dang nhap de thue xe." },
+        { error: "Vui lòng đăng nhập để thuê xe." },
+        { status: 401 }
+      );
+    }
+
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
+    });
+    if (!userExists) {
+      return NextResponse.json(
+        { error: "Phiên đã hết hạn. Vui lòng đăng nhập lại." },
         { status: 401 }
       );
     }

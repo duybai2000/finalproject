@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PickupMap = dynamic(() => import("@/components/PickupMap"), {
   ssr: false,
@@ -49,6 +49,42 @@ export default function RideForm() {
   const [isLocating, setIsLocating] = useState(false);
   const router = useRouter();
   const today = new Date().toISOString().split("T")[0];
+  const skipNextForwardGeocode = useRef(false);
+
+  // Forward-geocode pickup text → recenter map. Debounced; skipped when the
+  // text was set programmatically (map click, GPS) to avoid feedback loops.
+  useEffect(() => {
+    if (skipNextForwardGeocode.current) {
+      skipNextForwardGeocode.current = false;
+      return;
+    }
+    if (pickup.trim().length < 5) return;
+
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/geocode/forward?q=${encodeURIComponent(pickup)}`,
+          { signal: ctrl.signal }
+        );
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          results?: Array<{ lat: number; lng: number; address: string }>;
+        };
+        const top = data?.results?.[0];
+        if (top) {
+          setPickupLocation({ lat: top.lat, lng: top.lng, accuracy: null });
+        }
+      } catch {
+        // aborted or network — ignore
+      }
+    }, 600);
+
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [pickup]);
 
   const handleMapPick = ({
     lat,
@@ -62,6 +98,7 @@ export default function RideForm() {
     setError("");
     setPickupLocation({ lat, lng, accuracy: null });
     if (address) {
+      skipNextForwardGeocode.current = true;
       setPickup(address);
       setLocationMessage(`Đã chọn vị trí từ bản đồ`);
     } else {
@@ -103,9 +140,11 @@ export default function RideForm() {
           if (res.ok) {
             const data = (await res.json()) as { address?: string };
             if (data.address) {
-              setPickup((currentPickup) =>
-                currentPickup.trim() ? currentPickup : data.address!
-              );
+              setPickup((currentPickup) => {
+                if (currentPickup.trim()) return currentPickup;
+                skipNextForwardGeocode.current = true;
+                return data.address!;
+              });
             }
           }
         } catch {

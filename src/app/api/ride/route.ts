@@ -26,6 +26,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Defensive: session can outlive its user (e.g., DB reset). Surface a
+    // clean 401 instead of letting a foreign-key error become 500.
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
+    });
+    if (!userExists) {
+      return NextResponse.json(
+        { error: "Phiên đã hết hạn. Vui lòng đăng nhập lại." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json().catch(() => null);
     const parsed = RideSchema.safeParse(body);
 
