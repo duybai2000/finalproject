@@ -39,16 +39,15 @@ export default function AboutPage() {
         </section>
 
         <section className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-3">
-          <h2 className="text-2xl font-bold">Pham vi đồ án</h2>
+          <h2 className="text-2xl font-bold">Cam kết của chúng tôi</h2>
           <p className="text-gray-300">
-            Đây là đồ án tốt nghiệp. Một số tính năng được mô phỏng để tập trung
-            vào logic nghiệp vụ chính:
+            Ride &amp; Rent xây dựng dịch vụ trên ba trụ cột:
           </p>
           <ul className="list-disc list-inside text-gray-400 space-y-1 pl-2">
-            <li>Cổng thanh toán: form mô phỏng, không kết nối ngân hàng thật</li>
-            <li>Tài xế / điều phối: mô phỏng qua admin / chủ xe đổi trạng thái</li>
-            <li>Bản đồ: hiển thị vị trí trên OpenStreetMap, không định tuyến thực</li>
-            <li>Cơ sở dữ liệu: SQLite cho local; production dùng PostgreSQL</li>
+            <li>Giá minh bạch — không có phụ thu ẩn, mọi khoản đều hiển thị trước khi đặt</li>
+            <li>Bảo vệ chủ xe và khách thuê — quy trình xác nhận hai bước cho mỗi đơn</li>
+            <li>Hỗ trợ nhanh — đội chăm sóc khách hàng phản hồi trong 24 giờ</li>
+            <li>Cơ chế hoa hồng công bằng — chủ xe nhận 85% giá trị mỗi đơn</li>
           </ul>
         </section>
 

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import OwnerStatusSelect from "@/components/OwnerStatusSelect";
 import { RENTAL_STATUSES } from "@/lib/bookingStatus";
+import { splitRevenue } from "@/lib/commission";
 
 export default async function OwnerBookingsPage() {
   const session = await getServerSession(authOptions);
@@ -34,46 +35,58 @@ export default async function OwnerBookingsPage() {
           <table className="w-full text-sm">
             <thead className="text-gray-400 border-b border-white/10">
               <tr>
-                <th className="text-left p-4">Khach</th>
+                <th className="text-left p-4">Khách</th>
                 <th className="text-left p-4">Xe</th>
-                <th className="text-left p-4">Lich</th>
-                <th className="text-right p-4">Tong</th>
+                <th className="text-left p-4">Lịch</th>
+                <th className="text-right p-4">Tổng đơn</th>
+                <th className="text-right p-4">Bạn nhận</th>
                 <th className="text-center p-4">TT</th>
-                <th className="text-right p-4">Trang thai</th>
+                <th className="text-right p-4">Trạng thái</th>
               </tr>
             </thead>
             <tbody>
-              {bookings.map((b) => (
-                <tr key={b.id} className="border-b border-white/5 last:border-b-0">
-                  <td className="p-4">
-                    <p className="font-medium">{b.user.name || "Khong ten"}</p>
-                    <p className="text-xs text-gray-400">{b.user.email}</p>
-                  </td>
-                  <td className="p-4">{b.carName}</td>
-                  <td className="p-4 text-gray-300">{b.dateRange}</td>
-                  <td className="p-4 text-right text-emerald-400 font-bold">
-                    {b.totalPrice.toLocaleString("vi-VN")} d
-                  </td>
-                  <td className="p-4 text-center">
-                    {b.paidAt ? (
-                      <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
-                        Da TT
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
-                        Chua TT
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <OwnerStatusSelect
-                      id={b.id}
-                      initial={b.status}
-                      options={RENTAL_STATUSES}
-                    />
-                  </td>
-                </tr>
-              ))}
+              {bookings.map((b) => {
+                const split = splitRevenue(b.totalPrice, true);
+                return (
+                  <tr key={b.id} className="border-b border-white/5 last:border-b-0">
+                    <td className="p-4">
+                      <p className="font-medium">{b.user.name || "Khách"}</p>
+                      <p className="text-xs text-gray-400">{b.user.email}</p>
+                    </td>
+                    <td className="p-4">{b.carName}</td>
+                    <td className="p-4 text-gray-300">{b.dateRange}</td>
+                    <td className="p-4 text-right text-gray-300">
+                      {b.totalPrice.toLocaleString("vi-VN")} đ
+                    </td>
+                    <td className="p-4 text-right">
+                      <p className="text-emerald-400 font-bold">
+                        {split.ownerNet.toLocaleString("vi-VN")} đ
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        sau phí {split.platformCommission.toLocaleString("vi-VN")} đ
+                      </p>
+                    </td>
+                    <td className="p-4 text-center">
+                      {b.paidAt ? (
+                        <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                          Đã TT
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
+                          Chưa TT
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <OwnerStatusSelect
+                        id={b.id}
+                        initial={b.status}
+                        options={RENTAL_STATUSES}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

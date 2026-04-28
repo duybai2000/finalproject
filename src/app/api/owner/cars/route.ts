@@ -11,6 +11,7 @@ const CarCreateSchema = z.object({
   auto: z.boolean(),
   dailyRate: z.number().int().positive(),
   img: z.string().url(),
+  description: z.string().trim().max(1000).optional(),
   active: z.boolean().optional(),
 });
 

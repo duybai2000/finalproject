@@ -56,16 +56,25 @@ model RentalBooking {
 }
 
 model Car {
-  id        Int      @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String
+  seats       Int
+  auto        Boolean  @default(true)
+  dailyRate   Int
+  img         String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String?  // null = platform-owned (admin-managed)
+  owner       User?    @relation(fields: [ownerId], references: [id])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
   name      String
-  type      String
-  seats     Int
-  auto      Boolean  @default(true)
-  dailyRate Int
-  img       String
-  active    Boolean  @default(true)
+  email     String
+  message   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ownerId   String?  // null = platform-owned (admin-managed)
-  owner     User?    @relation(fields: [ownerId], references: [id])
 }

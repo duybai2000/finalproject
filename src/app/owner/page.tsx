@@ -1,6 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import { getOwnerEarnings } from "@/lib/revenue";
+import { PLATFORM_COMMISSION_RATE } from "@/lib/commission";
 
 export default async function OwnerDashboard() {
   const session = await getServerSession(authOptions);
@@ -16,36 +18,75 @@ export default async function OwnerDashboard() {
           orderBy: { createdAt: "desc" },
         });
 
+  const earnings = await getOwnerEarnings(ownerId);
   const activeCars = cars.filter((c) => c.active).length;
-  const totalEarnings = bookings
-    .filter((b) => b.paidAt)
-    .reduce((sum, b) => sum + b.totalPrice, 0);
   const pending = bookings.filter((b) => b.status === "PENDING").length;
 
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="Tong xe" value={cars.length} accent="emerald" />
-        <Stat label="Xe dang hoat dong" value={activeCars} accent="blue" />
-        <Stat label="Don dang cho" value={pending} accent="orange" />
+        <Stat label="Tổng xe" value={cars.length} accent="blue" />
+        <Stat label="Đang cho thuê" value={activeCars} accent="emerald" />
+        <Stat label="Đơn đang chờ" value={pending} accent="orange" />
         <Stat
-          label="Doanh thu"
-          value={`${(totalEarnings / 1000).toLocaleString("vi-VN")}K`}
+          label="Đã thực nhận"
+          value={`${earnings.net.toLocaleString("vi-VN")} đ`}
           accent="emerald"
         />
       </div>
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-2">Xin chao, {session!.user.name || "chu xe"}!</h2>
+        <h2 className="text-lg font-semibold mb-4">Tổng thu nhập</h2>
+        <div className="grid md:grid-cols-3 gap-4 text-sm">
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+            <p className="text-gray-400 text-xs uppercase tracking-wide">
+              Tổng doanh thu
+            </p>
+            <p className="text-2xl font-bold text-blue-400 mt-1">
+              {earnings.gross.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {earnings.paidBookings} đơn đã thanh toán
+            </p>
+          </div>
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+            <p className="text-gray-400 text-xs uppercase tracking-wide">
+              Phí nền tảng ({(PLATFORM_COMMISSION_RATE * 100).toFixed(0)}%)
+            </p>
+            <p className="text-2xl font-bold text-amber-400 mt-1">
+              -{earnings.commission.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-gray-500 mt-1">Tự động khấu trừ</p>
+          </div>
+          <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-400/30">
+            <p className="text-emerald-200/80 text-xs uppercase tracking-wide">
+              Thực nhận
+            </p>
+            <p className="text-2xl font-bold text-emerald-300 mt-1">
+              {earnings.net.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-emerald-200/60 mt-1">
+              {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% sau phí
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-semibold mb-2">
+          Xin chào, {session!.user.name || "chủ xe"}
+        </h2>
         <p className="text-gray-400 text-sm">
-          Tu day ban co the dang xe cho thue, theo doi don thue va xem doanh thu.
-          Vao &quot;Xe cua toi&quot; de them xe moi, hoac &quot;Don thue&quot; de xac nhan don.
+          Quản lý xe cho thuê và đơn thuê tại đây. Mỗi đơn được khách hàng
+          thanh toán, bạn nhận{" "}
+          {(100 - PLATFORM_COMMISSION_RATE * 100).toFixed(0)}% giá trị đơn —
+          phần còn lại là phí dịch vụ của nền tảng.
         </p>
       </div>
 
       {bookings.length > 0 && (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-4">5 don gan day</h2>
+          <h2 className="text-lg font-semibold mb-4">5 đơn gần đây</h2>
           <ul className="space-y-3">
             {bookings.slice(0, 5).map((b) => (
               <li
@@ -58,9 +99,11 @@ export default async function OwnerDashboard() {
                 </div>
                 <div className="text-right">
                   <p className="text-emerald-400 font-bold">
-                    {b.totalPrice.toLocaleString("vi-VN")} d
+                    {b.totalPrice.toLocaleString("vi-VN")} đ
                   </p>
-                  <span className="text-xs bg-white/20 px-2 py-1 rounded">{b.status}</span>
+                  <span className="text-xs bg-white/20 px-2 py-1 rounded">
+                    {b.status}
+                  </span>
                 </div>
               </li>
             ))}

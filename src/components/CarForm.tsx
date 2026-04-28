@@ -10,6 +10,7 @@ type CarInput = {
   auto: boolean;
   dailyRate: number;
   img: string;
+  description: string;
   active: boolean;
 };
 
@@ -26,6 +27,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
   const [auto, setAuto] = useState(initial?.auto ?? true);
   const [dailyRate, setDailyRate] = useState(initial?.dailyRate ?? 700_000);
   const [img, setImg] = useState(initial?.img ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
   const [active, setActive] = useState(initial?.active ?? true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -43,7 +45,16 @@ export default function CarForm({ mode, carId, initial }: Props) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, type, seats, auto, dailyRate, img, active }),
+        body: JSON.stringify({
+          name,
+          type,
+          seats,
+          auto,
+          dailyRate,
+          img,
+          description: description || undefined,
+          active,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -115,7 +126,7 @@ export default function CarForm({ mode, carId, initial }: Props) {
         />
       </Field>
 
-      <Field label="URL anh">
+      <Field label="URL ảnh">
         <input
           type="url"
           value={img}
@@ -123,6 +134,17 @@ export default function CarForm({ mode, carId, initial }: Props) {
           required
           className={inputClass}
           placeholder="https://..."
+        />
+      </Field>
+
+      <Field label="Mô tả">
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+          maxLength={1000}
+          className={inputClass + " resize-none"}
+          placeholder="Đặc điểm, tình trạng, ghi chú dành cho khách thuê…"
         />
       </Field>
 

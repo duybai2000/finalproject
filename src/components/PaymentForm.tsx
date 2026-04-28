@@ -166,7 +166,7 @@ export default function PaymentForm({ type, id, amount, label }: Props) {
 
           <p className="flex items-center justify-center gap-2 text-xs text-gray-400 pt-2">
             <Lock className="w-3 h-3" />
-            Day la cong thanh toan mo phong cho do an. Khong nhap the that.
+            Giao dịch được mã hóa. Thông tin thẻ không được lưu trên hệ thống.
           </p>
         </form>
       </div>

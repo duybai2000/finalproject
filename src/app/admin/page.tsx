@@ -27,24 +27,63 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-10">
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Khach hang" value={usersCount} accent="emerald" />
-        <StatCard label="Cuoc xe" value={ridesCount} accent="blue" />
-        <StatCard label="Don thue xe" value={rentalsCount} accent="orange" />
+        <StatCard label="Khách hàng" value={usersCount} accent="emerald" />
+        <StatCard label="Cuốc xe" value={ridesCount} accent="blue" />
+        <StatCard label="Đơn thuê xe" value={rentalsCount} accent="orange" />
         <StatCard
-          label="Doanh thu tuan"
+          label="Doanh thu tuần"
           value={`${(revenue.thisWeek / 1000).toLocaleString("vi-VN")}K`}
           accent="emerald"
         />
         <StatCard
-          label="Tong doanh thu"
+          label="Tổng doanh thu"
           value={`${(revenue.total / 1000).toLocaleString("vi-VN")}K`}
           accent="emerald"
         />
         <StatCard
-          label="Don da TT"
+          label="Đơn đã TT"
           value={revenue.paidBookings}
           accent="emerald"
         />
+      </section>
+
+      <section className="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-semibold mb-4">Cơ cấu doanh thu</h2>
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">
+            <p className="text-blue-200/80 text-xs uppercase tracking-wide">
+              Doanh thu nền tảng
+            </p>
+            <p className="text-2xl font-bold text-blue-300 mt-1">
+              {revenue.platformDirect.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-blue-200/60 mt-1">
+              Cuốc xe + thuê xe của hệ thống
+            </p>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
+            <p className="text-amber-200/80 text-xs uppercase tracking-wide">
+              Phí hoa hồng (15%)
+            </p>
+            <p className="text-2xl font-bold text-amber-300 mt-1">
+              {revenue.commission.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-amber-200/60 mt-1">
+              Từ xe của các chủ xe
+            </p>
+          </div>
+          <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-xl p-4">
+            <p className="text-emerald-200/80 text-xs uppercase tracking-wide">
+              Đã chi cho chủ xe
+            </p>
+            <p className="text-2xl font-bold text-emerald-300 mt-1">
+              {revenue.ownerPayouts.toLocaleString("vi-VN")} đ
+            </p>
+            <p className="text-xs text-emerald-200/60 mt-1">
+              85% giá trị đơn của chủ xe
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="bg-white/5 border border-white/10 rounded-2xl p-6">

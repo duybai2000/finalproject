@@ -11,6 +11,7 @@ const CarUpdateSchema = z.object({
   auto: z.boolean().optional(),
   dailyRate: z.number().int().positive().optional(),
   img: z.string().url().optional(),
+  description: z.string().trim().max(1000).optional(),
   active: z.boolean().optional(),
 });
 

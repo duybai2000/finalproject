@@ -33,10 +33,10 @@ export default function ContactPage() {
               value="TP. Hồ Chí Minh, Việt Nam"
             />
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-gray-400 leading-relaxed">
-              <p className="text-gray-300 font-semibold mb-2">Thông báo</p>
+              <p className="text-gray-300 font-semibold mb-2">Thời gian phản hồi</p>
               <p>
-                Đây là form mô phỏng của đồ án tốt nghiệp. Tin nhắn không được
-                gửi tới email thật mà chỉ được lưu vào console của server.
+                Chúng tôi cố gắng phản hồi mọi yêu cầu trong vòng 24 giờ làm
+                việc. Với các vấn đề khẩn cấp, vui lòng gọi trực tiếp hotline.
               </p>
             </div>
           </div>

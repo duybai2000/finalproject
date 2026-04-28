@@ -98,6 +98,14 @@ prisma/
   userId) — `carName` la snapshot, khong rang buoc khoa ngoai voi `Car`
 - `Car` (id, name, type, seats, auto, dailyRate, img, active) — admin CRUD
 
+## Mo hinh doanh thu
+
+- Xe cua **chu xe** (ownerId != null): chu xe nhan **85%**, nen tang giu
+  **15%** lam phi dich vu. Owner dashboard hien thi tong / phi / thuc nhan;
+  admin dashboard hien thi co cau doanh thu (truc tiep + hoa hong + da chi).
+- Xe **nen tang** (ownerId = null): nen tang giu 100%.
+- Cuoc xe (ride): hien tai 100% ve nen tang.
+
 ## Quy uoc gia
 
 - Tai xe: cong thuc `(don gia ngay × so ngay × phu thu) + (km × don gia km)`

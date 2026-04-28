@@ -18,6 +18,7 @@ type CarModel = {
   surchargeDays: number;
   surchargeTotal: number;
   img: string;
+  description: string | null;
 };
 
 export default function RentalForm() {
@@ -161,6 +162,11 @@ export default function RentalForm() {
             </div>
             <div className="p-5">
               <h3 className="text-xl font-bold text-white">{car.name}</h3>
+              {car.description && (
+                <p className="text-sm text-gray-300 mt-2 line-clamp-3">
+                  {car.description}
+                </p>
+              )}
               <div className="flex items-center gap-4 mt-3 text-sm text-gray-300">
                 <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
                   <Users className="w-4 h-4" /> {car.seats} Cho

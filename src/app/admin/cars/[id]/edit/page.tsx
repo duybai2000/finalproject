@@ -27,6 +27,7 @@ export default async function EditCarPage({
           auto: car.auto,
           dailyRate: car.dailyRate,
           img: car.img,
+          description: car.description ?? "",
           active: car.active,
         }}
       />

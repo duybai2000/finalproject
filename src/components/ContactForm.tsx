@@ -8,20 +8,33 @@ export default function ContactForm() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError("");
 
-    // Mock submit — log to console, then "succeed" after a tiny delay.
-    console.log("[contact form]", { name, email, message });
-    await new Promise((r) => setTimeout(r, 600));
-
-    setSuccess(true);
-    setName("");
-    setEmail("");
-    setMessage("");
-    setSubmitting(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Không thể gửi tin nhắn. Vui lòng thử lại.");
+        return;
+      }
+      setSuccess(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch {
+      setError("Lỗi kết nối. Vui lòng thử lại.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (success) {
@@ -70,10 +83,16 @@ export default function ContactForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
+          minLength={5}
           rows={5}
           className={inputClass + " resize-none"}
         />
       </Field>
+      {error && (
+        <div className="rounded-xl border border-red-400/30 bg-red-500/15 px-4 py-3 text-sm text-red-200">
+          {error}
+        </div>
+      )}
       <button
         type="submit"
         disabled={submitting}

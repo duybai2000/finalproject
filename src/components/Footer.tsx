@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
         <div className="text-gray-500 md:text-right">
           <p>&copy; {year} Ride &amp; Rent</p>
-          <p className="text-xs mt-1">Đồ án tốt nghiệp</p>
+          <p className="text-xs mt-1">Mọi quyền được bảo lưu</p>
         </div>
       </div>
     </footer>

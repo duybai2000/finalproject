@@ -23,6 +23,7 @@ export async function GET(request: Request) {
       auto: car.auto,
       dailyRate: car.dailyRate,
       img: car.img,
+      description: car.description ?? null,
       price: car.dailyRate.toLocaleString("vi-VN"),
       estimatedTotal: pricing?.total ?? null,
       totalDays: pricing?.totalDays ?? null,
