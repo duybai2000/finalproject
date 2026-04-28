@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { User, LogOut, LayoutDashboard } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Car } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -13,6 +13,12 @@ export default function Navbar() {
         <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
           Ride & Rent
         </Link>
+
+        <div className="hidden md:flex items-center gap-6 text-sm text-gray-300">
+          <Link href="/" className="hover:text-white transition">Trang chủ</Link>
+          <Link href="/about" className="hover:text-white transition">Giới thiệu</Link>
+          <Link href="/contact" className="hover:text-white transition">Liên hệ</Link>
+        </div>
 
         <div className="flex items-center gap-4">
           {session ? (
@@ -29,6 +35,16 @@ export default function Navbar() {
                  >
                    <LayoutDashboard className="w-5 h-5" />
                    <span>Admin</span>
+                 </Link>
+               )}
+
+               {session.user.role === 'OWNER' && (
+                 <Link
+                   href="/owner"
+                   className="flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-lg font-semibold transition shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                 >
+                   <Car className="w-5 h-5" />
+                   <span>Chủ xe</span>
                  </Link>
                )}
 

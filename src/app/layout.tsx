@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Ride & Rent | Platform",
@@ -18,7 +19,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-900">
         <Providers>
           <Navbar />
-          {children}
+          <main className="flex-1">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

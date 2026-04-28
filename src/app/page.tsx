@@ -12,6 +12,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"ride" | "rent">("ride");
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
+  const isOwner = session?.user?.role === "OWNER";
 
   return (
     <div className="min-h-screen bg-slate-900 overflow-hidden relative font-sans">
@@ -51,6 +52,32 @@ export default function Home() {
               className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
             >
               Mở Admin
+            </Link>
+          </motion.div>
+        )}
+
+        {isOwner && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-3xl mx-auto mb-8 rounded-2xl border border-amber-400/30 bg-amber-500/10 backdrop-blur-md px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <LayoutDashboard className="w-5 h-5 text-amber-300" />
+              <div>
+                <p className="text-amber-100 font-semibold">
+                  Bạn đang đăng nhập với vai trò Chủ xe
+                </p>
+                <p className="text-amber-200/70 text-sm">
+                  Quản lý xe cho thuê và đơn thuê trong bảng điều khiển chủ xe.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/owner"
+              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-xl text-sm whitespace-nowrap"
+            >
+              Mở bảng chủ xe
             </Link>
           </motion.div>
         )}

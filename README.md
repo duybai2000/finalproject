@@ -6,6 +6,9 @@ Tailwind CSS 4.
 
 ## Tinh nang chinh
 
+- 3 vai tro: **USER** (khach thue), **OWNER** (chu xe cho thue), **ADMIN**
+  (quan tri he thong). Khi dang nhap se duoc dieu huong tu dong toi trang
+  phu hop voi vai tro.
 - Dang ky / dang nhap (NextAuth, mat khau hash bcrypt)
 - Dat tai xe theo ngay: lay GPS, uoc tinh gia (co phu thu cuoi tuan / ngay le),
   xac nhan don
@@ -13,6 +16,9 @@ Tailwind CSS 4.
 - Trang xac nhan don sau khi dat
 - Mo phong cong thanh toan (form the gia, khong nhan the that)
 - Lich su don cua nguoi dung tai `/profile`, ho tro huy don PENDING
+- Trang chu xe tai `/owner`: dashboard rieng, them/sua/xoa xe cua minh,
+  xem don thue tren xe cua minh, doi trang thai don, xem doanh thu
+- Trang gioi thieu `/about` va lien he `/contact` (form mock)
 - Trang Admin tai `/admin` voi 3 phan:
   - **Tong quan**: thong ke khach hang/cuoc xe/don thue, doanh thu tuan & tong,
     bieu do doanh thu 7 ngay gan day, bang booking voi doi trang thai inline
@@ -39,10 +45,11 @@ Mo http://localhost:3000
 
 ## Tai khoan demo
 
-| Email             | Mat khau | Vai tro |
-| ----------------- | -------- | ------- |
-| admin@gmail.com   | 123456   | ADMIN   |
-| user@gmail.com    | 123456   | USER    |
+| Email              | Mat khau | Vai tro |
+| ------------------ | -------- | ------- |
+| admin@gmail.com    | 123456   | ADMIN   |
+| owner@gmail.com    | 123456   | OWNER   |
+| user@gmail.com     | 123456   | USER    |
 
 ## Cau truc thu muc chinh
 

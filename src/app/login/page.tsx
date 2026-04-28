@@ -26,7 +26,8 @@ export default function LoginPage() {
     }
 
     const session = await getSession();
-    const target = session?.user?.role === "ADMIN" ? "/admin" : "/";
+    const role = session?.user?.role;
+    const target = role === "ADMIN" ? "/admin" : role === "OWNER" ? "/owner" : "/";
     router.push(target);
     router.refresh();
   };

@@ -11,11 +11,12 @@ model User {
   email     String?  @unique
   name      String?
   password  String?
-  role      String   @default("USER") // USER or ADMIN
+  role      String   @default("USER") // USER, OWNER, or ADMIN
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   rides     RideBooking[]
   rentals   RentalBooking[]
+  cars      Car[]
 }
 
 model RideBooking {
@@ -65,4 +66,6 @@ model Car {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  ownerId   String?  // null = platform-owned (admin-managed)
+  owner     User?    @relation(fields: [ownerId], references: [id])
 }

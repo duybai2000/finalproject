@@ -36,7 +36,19 @@ async function main() {
     },
   });
 
-  const cars = [
+  const owner = await prisma.user.upsert({
+    where: { email: "owner@gmail.com" },
+    update: {},
+    create: {
+      email: "owner@gmail.com",
+      name: "Anh Tuan",
+      password,
+      role: "OWNER",
+    },
+  });
+
+  // Platform cars (ownerId = null) — admin-managed fleet
+  const platformCars = [
     {
       id: 1,
       name: "Toyota Vios 2023",
@@ -66,12 +78,43 @@ async function main() {
     },
   ];
 
-  for (const car of cars) {
+  for (const car of platformCars) {
     await prisma.car.upsert({
       where: { id: car.id },
       update: {},
       create: car,
     });
+  }
+
+  // Owner-listed demo cars
+  const ownerCars = [
+    {
+      name: "Honda Civic 2022",
+      type: "Cao cap",
+      seats: 4,
+      auto: true,
+      dailyRate: 850_000,
+      img: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&q=80&w=400&h=250",
+      ownerId: owner.id,
+    },
+    {
+      name: "Kia Morning 2023",
+      type: "Tiet kiem",
+      seats: 4,
+      auto: true,
+      dailyRate: 500_000,
+      img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=400&h=250",
+      ownerId: owner.id,
+    },
+  ];
+
+  for (const car of ownerCars) {
+    const exists = await prisma.car.findFirst({
+      where: { name: car.name, ownerId: owner.id },
+    });
+    if (!exists) {
+      await prisma.car.create({ data: car });
+    }
   }
 }
 
