@@ -1,5 +1,7 @@
 const DRIVER_DAILY_RATE = 1_000_000;
 const WEEKEND_OR_HOLIDAY_MULTIPLIER = 1.2;
+const PER_KM_RATE = 8_000;
+const ROAD_FACTOR = 1.3; // straight-line -> approximate road distance multiplier
 
 const FIXED_HOLIDAYS = new Set(["01-01", "04-30", "05-01", "09-02"]);
 
@@ -101,14 +103,86 @@ export function getDriverDailyRate() {
   return DRIVER_DAILY_RATE;
 }
 
-export function calculateDriverHirePrice(startDate: string, endDate: string) {
-  const days = enumerateDays(startDate, endDate);
+export function getPerKmRate() {
+  return PER_KM_RATE;
+}
 
-  if (!days) {
-    return null;
+export function haversineKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) {
+  const R = 6371;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+export function estimateRoadDistanceKm(
+  pickupLat: number,
+  pickupLng: number,
+  dropoffLat: number,
+  dropoffLng: number
+) {
+  const straight = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
+  return straight * ROAD_FACTOR;
+}
+
+export type DriverHireBreakdown = {
+  total: number;
+  daysFare: number;
+  baseTotal: number;
+  surchargeTotal: number;
+  distanceFee: number;
+  distanceKm: number;
+  totalDays: number;
+  surchargeDays: number;
+  normalDays: number;
+};
+
+export function calculateDriverHirePrice(
+  startDate: string,
+  endDate: string,
+  pickupLat?: number | null,
+  pickupLng?: number | null,
+  dropoffLat?: number | null,
+  dropoffLng?: number | null
+): DriverHireBreakdown | null {
+  const days = enumerateDays(startDate, endDate);
+  if (!days) return null;
+
+  const daysBreakdown = buildBreakdown(days, DRIVER_DAILY_RATE);
+
+  let distanceKm = 0;
+  let distanceFee = 0;
+
+  if (
+    typeof pickupLat === "number" &&
+    typeof pickupLng === "number" &&
+    typeof dropoffLat === "number" &&
+    typeof dropoffLng === "number"
+  ) {
+    distanceKm = estimateRoadDistanceKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
+    distanceFee = Math.round(distanceKm * PER_KM_RATE);
   }
 
-  return buildBreakdown(days, DRIVER_DAILY_RATE);
+  return {
+    total: daysBreakdown.total + distanceFee,
+    daysFare: daysBreakdown.total,
+    baseTotal: daysBreakdown.baseTotal,
+    surchargeTotal: daysBreakdown.surchargeTotal,
+    distanceFee,
+    distanceKm,
+    totalDays: daysBreakdown.totalDays,
+    surchargeDays: daysBreakdown.surchargeDays,
+    normalDays: daysBreakdown.normalDays,
+  };
 }
 
 export function calculateCarRentalPrice(

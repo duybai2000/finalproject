@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Car as CarIcon, Users, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type CarModel = {
@@ -24,7 +25,51 @@ export default function RentalForm() {
   const [returnDate, setReturnDate] = useState("");
   const [cars, setCars] = useState<CarModel[]>([]);
   const [error, setError] = useState("");
+  const [bookingCarId, setBookingCarId] = useState<number | null>(null);
+  const router = useRouter();
   const today = new Date().toISOString().split("T")[0];
+
+  const handleSelectCar = async (carId: number) => {
+    if (!pickupDate || !returnDate) {
+      setError("Vui long chon ngay nhan va ngay tra truoc khi chon xe.");
+      return;
+    }
+
+    setError("");
+    setBookingCarId(carId);
+
+    try {
+      const res = await fetch("/api/rental", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ carId, pickupDate, returnDate }),
+      });
+
+      const contentType = res.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await res.json()
+        : { error: "Server tra ve dinh dang khong hop le." };
+
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error || "Khong the thue xe.");
+        return;
+      }
+
+      if (data.id) {
+        router.push(`/booking/rental/${data.id}`);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Khong the ket noi server. Vui long thu lai.");
+    } finally {
+      setBookingCarId(null);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -135,8 +180,13 @@ export default function RentalForm() {
                       {car.dailyRate.toLocaleString("vi-VN")} d
                     </p>
                   </div>
-                  <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm font-semibold">
-                    Chon Xe
+                  <button
+                    type="button"
+                    onClick={() => handleSelectCar(car.id)}
+                    disabled={bookingCarId !== null}
+                    className="bg-white/10 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60 text-white px-4 py-2 rounded-lg transition-colors text-sm font-semibold"
+                  >
+                    {bookingCarId === car.id ? "Dang dat..." : "Chon Xe"}
                   </button>
                 </div>
 

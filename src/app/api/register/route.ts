@@ -1,36 +1,50 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcrypt';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import { z } from "zod";
+import prisma from "@/lib/prisma";
+
+const RegisterSchema = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
+  email: z.string().trim().toLowerCase().email("Email khong hop le.").max(254),
+  password: z
+    .string()
+    .min(6, "Mat khau toi thieu 6 ky tu.")
+    .max(128, "Mat khau qua dai."),
+});
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const body = await request.json().catch(() => null);
+    const parsed = RegisterSchema.safeParse(body);
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email và mật khẩu là bắt buộc' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message || "Du lieu khong hop le." },
+        { status: 400 }
+      );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { name, email, password } = parsed.data;
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email đã được sử dụng' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email da duoc su dung." },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        // Role is default "USER" per schema
-      }
+      data: { name, email, password: hashedPassword },
     });
 
-    return NextResponse.json({ message: 'Tạo tài khoản thành công', user: { id: user.id, email: user.email } });
-  } catch (error) {
-    return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
+    return NextResponse.json({
+      message: "Tao tai khoan thanh cong",
+      user: { id: user.id, email: user.email },
+    });
+  } catch {
+    return NextResponse.json({ error: "Loi server." }, { status: 500 });
   }
 }

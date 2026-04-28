@@ -1,44 +1,225 @@
-import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import AdminStatusSelect from "@/components/AdminStatusSelect";
+import { RENTAL_STATUSES, RIDE_STATUSES } from "@/lib/bookingStatus";
+import { getRevenueStats } from "@/lib/revenue";
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
+  const [usersCount, ridesCount, rentalsCount, rides, rentals, revenue] =
+    await Promise.all([
+      prisma.user.count(),
+      prisma.rideBooking.count(),
+      prisma.rentalBooking.count(),
+      prisma.rideBooking.findMany({
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { name: true, email: true } } },
+        take: 50,
+      }),
+      prisma.rentalBooking.findMany({
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { name: true, email: true } } },
+        take: 50,
+      }),
+      getRevenueStats(),
+    ]);
 
-  if (!session || (session.user as any)?.role !== "ADMIN") {
-    redirect("/"); // Not authorized
-  }
-
-  const usersCount = await prisma.user.count();
-  const ridesCount = await prisma.rideBooking.count();
-  const rentalsCount = await prisma.rentalBooking.count();
+  const peak = Math.max(1, ...revenue.daily.map((d) => d.total));
 
   return (
-    <div className="min-h-screen pt-24 px-6 md:px-12 text-white">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-            <h3 className="text-gray-400">Khách hàng</h3>
-            <p className="text-4xl font-bold mt-2 text-emerald-400">{usersCount}</p>
-          </div>
-          <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-            <h3 className="text-gray-400">Cuốc Xe Đặt</h3>
-            <p className="text-4xl font-bold mt-2 text-blue-400">{ridesCount}</p>
-          </div>
-          <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-            <h3 className="text-gray-400">Đơn Thuê Xe</h3>
-            <p className="text-4xl font-bold mt-2 text-orange-400">{rentalsCount}</p>
-          </div>
-        </div>
+    <div className="space-y-10">
+      <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <StatCard label="Khach hang" value={usersCount} accent="emerald" />
+        <StatCard label="Cuoc xe" value={ridesCount} accent="blue" />
+        <StatCard label="Don thue xe" value={rentalsCount} accent="orange" />
+        <StatCard
+          label="Doanh thu tuan"
+          value={`${(revenue.thisWeek / 1000).toLocaleString("vi-VN")}K`}
+          accent="emerald"
+        />
+        <StatCard
+          label="Tong doanh thu"
+          value={`${(revenue.total / 1000).toLocaleString("vi-VN")}K`}
+          accent="emerald"
+        />
+        <StatCard
+          label="Don da TT"
+          value={revenue.paidBookings}
+          accent="emerald"
+        />
+      </section>
 
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-          <h2 className="text-xl font-bold mb-4">Quản lý nâng cao</h2>
-          <p className="text-gray-400">Bạn là Admin hệ thống. Ở phần này bạn có thể bổ sung chức năng xem cụ thể từng danh sách hoặc xuất báo cáo.</p>
+      <section className="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <h2 className="text-lg font-semibold mb-4">Doanh thu 7 ngay gan day</h2>
+        <div className="grid grid-cols-7 gap-2 items-end h-40">
+          {revenue.daily.map((d) => {
+            const heightPct = (d.total / peak) * 100;
+            return (
+              <div key={d.date} className="flex flex-col items-center gap-2">
+                <div className="flex-1 w-full flex items-end">
+                  <div
+                    className="w-full rounded-t bg-gradient-to-t from-emerald-500/40 to-emerald-400/80 min-h-[2px]"
+                    style={{ height: `${Math.max(heightPct, d.total > 0 ? 8 : 2)}%` }}
+                    title={`${d.total.toLocaleString("vi-VN")} d`}
+                  />
+                </div>
+                <p className="text-xs text-gray-400">{d.date.slice(5)}</p>
+              </div>
+            );
+          })}
         </div>
-      </div>
+        {revenue.total === 0 && (
+          <p className="text-sm text-gray-400 mt-3">
+            Chua co don nao duoc thanh toan.
+          </p>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-blue-400 mb-4">Quan ly cuoc xe</h2>
+        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
+          {rides.length === 0 ? (
+            <p className="text-gray-400 p-6">Chua co cuoc xe nao.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="text-gray-400 border-b border-white/10">
+                <tr>
+                  <th className="text-left p-4">Khach hang</th>
+                  <th className="text-left p-4">Lo trinh</th>
+                  <th className="text-left p-4">Lich</th>
+                  <th className="text-right p-4">Gia</th>
+                  <th className="text-center p-4">TT</th>
+                  <th className="text-right p-4">Trang thai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rides.map((ride) => (
+                  <tr key={ride.id} className="border-b border-white/5 last:border-b-0">
+                    <td className="p-4">
+                      <p className="font-medium">{ride.user.name || "Khong ten"}</p>
+                      <p className="text-xs text-gray-400">{ride.user.email}</p>
+                    </td>
+                    <td className="p-4">
+                      <p className="break-words max-w-xs">
+                        {ride.pickup} -&gt; {ride.dropoff}
+                      </p>
+                    </td>
+                    <td className="p-4 text-gray-300">
+                      <p>{ride.distance}</p>
+                      <p className="text-xs text-gray-400">
+                        {ride.time}
+                        {ride.distanceKm !== null && ` - ${ride.distanceKm.toFixed(1)} km`}
+                      </p>
+                    </td>
+                    <td className="p-4 text-right text-emerald-400 font-bold">
+                      {ride.estimatedPrice.toLocaleString("vi-VN")} d
+                    </td>
+                    <td className="p-4 text-center">
+                      {ride.paidAt ? (
+                        <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                          Da TT
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
+                          Chua TT
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <AdminStatusSelect
+                        type="ride"
+                        id={ride.id}
+                        initial={ride.status}
+                        options={RIDE_STATUSES}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-orange-400 mb-4">Quan ly thue xe</h2>
+        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
+          {rentals.length === 0 ? (
+            <p className="text-gray-400 p-6">Chua co don thue xe nao.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="text-gray-400 border-b border-white/10">
+                <tr>
+                  <th className="text-left p-4">Khach hang</th>
+                  <th className="text-left p-4">Xe</th>
+                  <th className="text-left p-4">Lich thue</th>
+                  <th className="text-right p-4">Tong</th>
+                  <th className="text-center p-4">TT</th>
+                  <th className="text-right p-4">Trang thai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rentals.map((rental) => (
+                  <tr
+                    key={rental.id}
+                    className="border-b border-white/5 last:border-b-0"
+                  >
+                    <td className="p-4">
+                      <p className="font-medium">{rental.user.name || "Khong ten"}</p>
+                      <p className="text-xs text-gray-400">{rental.user.email}</p>
+                    </td>
+                    <td className="p-4">{rental.carName}</td>
+                    <td className="p-4 text-gray-300">{rental.dateRange}</td>
+                    <td className="p-4 text-right text-emerald-400 font-bold">
+                      {rental.totalPrice.toLocaleString("vi-VN")} d
+                    </td>
+                    <td className="p-4 text-center">
+                      {rental.paidAt ? (
+                        <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                          Da TT
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
+                          Chua TT
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <AdminStatusSelect
+                        type="rental"
+                        id={rental.id}
+                        initial={rental.status}
+                        options={RENTAL_STATUSES}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  accent: "emerald" | "blue" | "orange";
+}) {
+  const color =
+    accent === "emerald"
+      ? "text-emerald-400"
+      : accent === "blue"
+        ? "text-blue-400"
+        : "text-orange-400";
+  return (
+    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
+      <h3 className="text-xs text-gray-400 uppercase tracking-wide">{label}</h3>
+      <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
     </div>
   );
 }

@@ -2,12 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
-
-type SessionUser = {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-};
+import CancelBookingButton from "@/components/CancelBookingButton";
 
 function buildOpenStreetMapUrl(lat: number, lng: number) {
   return `https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=16/${lat.toFixed(6)}/${lng.toFixed(6)}`;
@@ -16,11 +11,11 @@ function buildOpenStreetMapUrl(lat: number, lng: number) {
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const user = session.user as SessionUser;
+  const user = session.user;
 
   const rides = await prisma.rideBooking.findMany({
     where: { userId: user.id },
@@ -59,6 +54,9 @@ export default async function ProfilePage() {
                   </p>
                   <p className="text-sm text-gray-400">
                     {ride.distance} - {ride.time}
+                    {ride.distanceKm !== null && (
+                      <span> - {ride.distanceKm.toFixed(1)} km</span>
+                    )}
                   </p>
                   {ride.pickupLat !== null && ride.pickupLng !== null && (
                     <div className="mt-2 text-xs text-gray-400 space-y-1">
@@ -79,13 +77,16 @@ export default async function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="text-right shrink-0">
+                <div className="text-right shrink-0 space-y-1">
                   <p className="text-emerald-400 font-bold">
                     {ride.estimatedPrice.toLocaleString("vi-VN")} d
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {ride.status}
                   </span>
+                  {ride.status === "PENDING" && (
+                    <CancelBookingButton type="ride" id={ride.id} />
+                  )}
                 </div>
               </div>
             ))
@@ -106,13 +107,16 @@ export default async function ProfilePage() {
                   <p className="font-semibold">{rental.carName}</p>
                   <p className="text-sm text-gray-400">{rental.dateRange}</p>
                 </div>
-                <div className="text-right shrink-0">
+                <div className="text-right shrink-0 space-y-1">
                   <p className="text-emerald-400 font-bold">
                     {rental.totalPrice.toLocaleString("vi-VN")} d
                   </p>
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     {rental.status}
                   </span>
+                  {rental.status === "PENDING" && (
+                    <CancelBookingButton type="rental" id={rental.id} />
+                  )}
                 </div>
               </div>
             ))

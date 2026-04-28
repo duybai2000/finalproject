@@ -9,7 +9,9 @@ import {
   ExternalLink,
   BriefcaseBusiness,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { DESTINATIONS, findDestination } from "@/lib/destinations";
 
 type PickupLocation = {
   lat: number;
@@ -19,10 +21,14 @@ type PickupLocation = {
 
 type EstimateResult = {
   price: number;
+  daysFare: number;
+  distanceFee: number;
+  distanceKm: number;
   totalDays: number;
   surchargeDays: number;
   surchargeTotal: number;
   dailyRate: number;
+  perKmRate: number;
   schedule: string;
   durationLabel: string;
 };
@@ -45,7 +51,8 @@ function buildOpenStreetMapUrl(lat: number, lng: number) {
 
 export default function RideForm() {
   const [pickup, setPickup] = useState("");
-  const [dropoff, setDropoff] = useState("");
+  const [dropoffId, setDropoffId] = useState("");
+  const dropoffDestination = useMemo(() => findDestination(dropoffId), [dropoffId]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [pickupLocation, setPickupLocation] = useState<PickupLocation | null>(null);
@@ -53,7 +60,9 @@ export default function RideForm() {
   const [locationMessage, setLocationMessage] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const router = useRouter();
   const today = new Date().toISOString().split("T")[0];
 
   const mapEmbedUrl = useMemo(() => {
@@ -117,7 +126,7 @@ export default function RideForm() {
   const handleEstimate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!pickup || !dropoff || !startDate || !endDate) {
+    if (!pickup || !dropoffDestination || !startDate || !endDate) {
       return;
     }
 
@@ -131,17 +140,16 @@ export default function RideForm() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/ride", {
+      const res = await fetch("/api/ride/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          pickup,
-          dropoff,
           startDate,
           endDate,
           pickupLat: pickupLocation.lat,
           pickupLng: pickupLocation.lng,
-          pickupAccuracy: pickupLocation.accuracy,
+          dropoffLat: dropoffDestination.lat,
+          dropoffLng: dropoffDestination.lng,
         }),
       });
 
@@ -158,10 +166,14 @@ export default function RideForm() {
       if (typeof data.price === "number") {
         setEstimate({
           price: data.price,
+          daysFare: data.daysFare,
+          distanceFee: data.distanceFee,
+          distanceKm: data.distanceKm,
           totalDays: data.totalDays,
           surchargeDays: data.surchargeDays,
           surchargeTotal: data.surchargeTotal,
           dailyRate: data.dailyRate,
+          perKmRate: data.perKmRate,
           schedule: data.schedule,
           durationLabel: data.durationLabel,
         });
@@ -171,6 +183,55 @@ export default function RideForm() {
       setError("Khong the ket noi server. Vui long thu lai.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!pickupLocation || !estimate || !dropoffDestination) return;
+
+    setError("");
+    setIsConfirming(true);
+
+    try {
+      const res = await fetch("/api/ride", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickup,
+          dropoff: dropoffDestination.name,
+          startDate,
+          endDate,
+          pickupLat: pickupLocation.lat,
+          pickupLng: pickupLocation.lng,
+          pickupAccuracy: pickupLocation.accuracy,
+          dropoffLat: dropoffDestination.lat,
+          dropoffLng: dropoffDestination.lng,
+        }),
+      });
+
+      const contentType = res.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await res.json()
+        : { error: "Server dang tra ve dinh dang khong hop le." };
+
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error || "Khong the dat tai xe.");
+        return;
+      }
+
+      if (data.id) {
+        router.push(`/booking/ride/${data.id}`);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Khong the ket noi server. Vui long thu lai.");
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -184,7 +245,8 @@ export default function RideForm() {
       <section className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl shadow-xl">
         <h2 className="text-2xl font-bold text-white mb-2">Thue Tai Xe Theo Ngay</h2>
         <p className="text-sm text-gray-400 mb-6">
-          Gia co ban 1.000.000 d/ngay. Thu 7, Chu nhat va ngay le tinh them 20%.
+          Gia co ban 1.000.000 d/ngay + 8.000 d/km quang duong (Diem don -&gt; Diem den).
+          Thu 7, Chu nhat va ngay le tinh them 20% phan tien ngay.
         </p>
 
         <form onSubmit={handleEstimate} className="space-y-4">
@@ -224,17 +286,24 @@ export default function RideForm() {
           </div>
 
           <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
               <MapPin className="w-5 h-5" />
             </div>
-            <input
-              type="text"
-              placeholder="Diem den"
-              value={dropoff}
-              onChange={(e) => setDropoff(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 text-white placeholder:text-gray-400 px-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            <select
+              value={dropoffId}
+              onChange={(e) => setDropoffId(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 text-white px-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none"
               required
-            />
+            >
+              <option value="" disabled>
+                Chon diem den
+              </option>
+              {DESTINATIONS.map((d) => (
+                <option key={d.id} value={d.id} className="bg-slate-800">
+                  {d.name} ({d.region})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -292,7 +361,7 @@ export default function RideForm() {
             animate={{ opacity: 1, height: "auto" }}
             className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10"
           >
-            <div className="flex justify-between items-center text-white mb-2">
+            <div className="flex justify-between items-center text-white mb-3">
               <span className="text-gray-300">Tong gia tai xe:</span>
               <span className="text-xl font-bold text-blue-400">
                 {estimate.price.toLocaleString("vi-VN")} d
@@ -302,21 +371,36 @@ export default function RideForm() {
               <p className="flex items-center gap-2">
                 <BriefcaseBusiness className="w-4 h-4" />
                 Don gia: {estimate.dailyRate.toLocaleString("vi-VN")} d/ngay
+                {" - "}
+                {estimate.perKmRate.toLocaleString("vi-VN")} d/km
               </p>
               <p>Lich thue: {estimate.schedule}</p>
               <p>Thoi gian: {estimate.durationLabel}</p>
-              <p>Ngay cuoi tuan/ngay le: {estimate.surchargeDays}</p>
-              {estimate.surchargeTotal > 0 && (
-                <p>Phu thu cuoi tuan/ngay le: +{estimate.surchargeTotal.toLocaleString("vi-VN")} d</p>
-              )}
+              <p>Khoang cach uoc tinh: {estimate.distanceKm.toFixed(1)} km</p>
+              <div className="border-t border-white/10 mt-2 pt-2 grid gap-1">
+                <p>Tien theo ngay: {estimate.daysFare.toLocaleString("vi-VN")} d</p>
+                {estimate.surchargeTotal > 0 && (
+                  <p>
+                    Phu thu cuoi tuan/ngay le ({estimate.surchargeDays} ngay): +
+                    {estimate.surchargeTotal.toLocaleString("vi-VN")} d
+                  </p>
+                )}
+                <p>Tien quang duong: +{estimate.distanceFee.toLocaleString("vi-VN")} d</p>
+              </div>
             </div>
-            {pickupLocation && (
+            {pickupLocation && dropoffDestination && (
               <p className="mt-3 text-xs text-gray-400">
-                Toa do da luu: {pickupLocation.lat.toFixed(5)}, {pickupLocation.lng.toFixed(5)}
+                {pickupLocation.lat.toFixed(4)},{pickupLocation.lng.toFixed(4)} -&gt;{" "}
+                {dropoffDestination.name}
               </p>
             )}
-            <button className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-              Xac Nhan Dat Tai Xe
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={isConfirming}
+              className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-70 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              {isConfirming ? "Dang xac nhan..." : "Xac Nhan Dat Tai Xe"}
             </button>
           </motion.div>
         )}

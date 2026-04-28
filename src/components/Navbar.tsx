@@ -19,10 +19,10 @@ export default function Navbar() {
             <>
                <Link href="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
                  <User className="w-5 h-5" />
-                 <span className="hidden sm:inline">({(session.user as any)?.role}) {session.user?.name}</span>
+                 <span className="hidden sm:inline">({session.user.role}) {session.user.name}</span>
                </Link>
-               
-               {(session.user as any)?.role === 'ADMIN' && (
+
+               {session.user.role === 'ADMIN' && (
                  <Link href="/admin" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition">
                    <LayoutDashboard className="w-5 h-5" />
                    <span className="hidden sm:inline">Admin</span>

@@ -25,13 +25,17 @@ model RideBooking {
   pickupLat      Float?
   pickupLng      Float?
   pickupAccuracy Float?
+  dropoffLat     Float?
+  dropoffLng     Float?
+  distanceKm     Float?
   locationCapturedAt DateTime?
   estimatedPrice Int
-  distance       String
-  time           String
+  distance       String   // legacy: stores schedule label "{startDate} den {endDate}"
+  time           String   // legacy: stores duration label "{days} ngay"
   status         String   @default("PENDING") // PENDING, ACCEPTED, COMPLETED, CANCELLED
+  paidAt         DateTime?
   createdAt      DateTime @default(now())
-  
+
   userId         String
   user           User     @relation(fields: [userId], references: [id])
 }
@@ -43,8 +47,22 @@ model RentalBooking {
   dateRange      String
   totalPrice     Int
   status         String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  paidAt         DateTime?
   createdAt      DateTime @default(now())
 
   userId         String
   user           User     @relation(fields: [userId], references: [id])
+}
+
+model Car {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  seats     Int
+  auto      Boolean  @default(true)
+  dailyRate Int
+  img       String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
